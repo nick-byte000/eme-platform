@@ -85,6 +85,26 @@ app.get('/', (req, res) => {
   res.json({ success: true, message: 'EME Backend is running!' });
 });
 
-app.listen(PORT, () => {
-  console.log('EME Backend running on port ' + PORT);
-});
+const fs = require('fs');
+const runMigrations = async () => {
+  const migrationsPath = path.join(__dirname, 'src/database/migrations');
+  const files = fs.readdirSync(migrationsPath).sort();
+  for (const file of files) {
+    const sql = fs.readFileSync(path.join(migrationsPath, file), 'utf8');
+    await pool.query(sql);
+    console.log('Migration:', file);
+  }
+};
+
+runMigrations()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log('EME Backend running on port ' + PORT);
+    });
+  })
+  .catch(err => {
+    console.error('Migration failed:', err.message);
+    app.listen(PORT, () => {
+      console.log('EME Backend running on port ' + PORT + ' (migrations failed)');
+    });
+  });

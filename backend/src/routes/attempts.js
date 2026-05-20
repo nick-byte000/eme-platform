@@ -169,6 +169,7 @@ router.post('/submit', auth, async (req, res) => {
       correct_options: correctOptions,
       explanation,
       theory_card: step.theory_card,
+      theory_card_hinglish: step.theory_card_hinglish,
       hint_text: step.hint_text,
       video_url: step.video_url,
       points_earned: pointsEarned,

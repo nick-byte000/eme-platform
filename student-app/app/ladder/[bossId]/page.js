@@ -24,6 +24,7 @@ export default function LadderPage() {
   const [uiPhase, setUiPhase] = useState('main');
   const [hintVisible, setHintVisible] = useState(false);
   const [theoryExpanded, setTheoryExpanded] = useState(false);
+  const [theoryLang, setTheoryLang] = useState('English');
 
   // Per-question answer state
   const [selected, setSelected] = useState(null);
@@ -358,7 +359,7 @@ export default function LadderPage() {
             )}
           </div>
 
-          {theoryExpanded && currentStep.theory_card && (
+          {theoryExpanded && (currentStep.theory_card || currentStep.theory_card_hinglish) && (
             <div style={{
               background: 'rgba(108, 99, 255, 0.08)',
               border: '1px solid rgba(108, 99, 255, 0.2)',
@@ -366,11 +367,23 @@ export default function LadderPage() {
               padding: '1rem',
               marginBottom: '1rem',
             }}>
-              <div style={{ fontSize: '11px', color: '#6c63ff', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.05em' }}>
-                THEORY
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <div style={{ fontSize: '11px', color: '#6c63ff', fontWeight: 700, letterSpacing: '0.05em' }}>THEORY</div>
+                {currentStep.theory_card && currentStep.theory_card_hinglish && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {['English', 'Hinglish'].map(lang => (
+                      <button key={lang} onClick={() => setTheoryLang(lang)}
+                        style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '6px', cursor: 'pointer', border: 'none', fontWeight: 600,
+                          background: theoryLang === lang ? '#6c63ff' : 'rgba(255,255,255,0.08)',
+                          color: theoryLang === lang ? '#fff' : '#9090a8' }}>
+                        {lang}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div style={{ fontSize: '14px', color: '#e0e0e0', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-                <MathRenderer text={currentStep.theory_card} />
+                <MathRenderer text={theoryLang === 'Hinglish' && currentStep.theory_card_hinglish ? currentStep.theory_card_hinglish : currentStep.theory_card} />
               </div>
             </div>
           )}

@@ -27,6 +27,7 @@ const EMPTY_STEP = {
   correct_options: 'a',
   explanation: '',
   theory_card: '',
+  theory_card_hinglish: '',
   video_url: '',
   hint_text: '',
   difficulty: 'medium',
@@ -245,6 +246,7 @@ function QuestionsForm() {
         hint_text: s.hint_text,
         explanation: s.explanation,
         theory_card: s.theory_card,
+        theory_card_hinglish: s.theory_card_hinglish,
         video_url: s.video_url,
         difficulty: s.difficulty,
         target_exam: 'JEE',
@@ -581,8 +583,11 @@ function QuestionsForm() {
                           <div style={{ fontSize: '12px', fontWeight: 700, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid rgba(34,197,94,0.2)' }}>
                             Clone Question <span style={{ color: '#9090a8', fontWeight: 400, textTransform: 'none' }}>(simplified)</span>
                           </div>
-                          <div className="form-group"><label>Theory Card</label>
-                            <textarea value={step.theory_card} onChange={e => updateStep(idx, 'theory_card', e.target.value)} rows={3} placeholder="Explain the concept clearly..." style={{ resize: 'vertical' }} />
+                          <div className="form-group"><label>Theory (English)</label>
+                            <textarea value={step.theory_card} onChange={e => updateStep(idx, 'theory_card', e.target.value)} rows={3} placeholder="Explain the concept in English..." style={{ resize: 'vertical' }} />
+                          </div>
+                          <div className="form-group"><label>Theory (Hinglish)</label>
+                            <textarea value={step.theory_card_hinglish} onChange={e => updateStep(idx, 'theory_card_hinglish', e.target.value)} rows={3} placeholder="Hinglish mein concept explain karo..." style={{ resize: 'vertical' }} />
                           </div>
                           <div className="form-group">
                             <label>Video</label>
@@ -927,8 +932,11 @@ function QuestionsForm() {
 
                             {/* Clone side */}
                             <div style={{ fontSize: '11px', fontWeight: 700, color: '#22c55e', marginTop: '12px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Clone Question</div>
-                            <div className="form-group"><label>Theory Card</label>
+                            <div className="form-group"><label>Theory (English)</label>
                               <textarea value={editingStep.theory_card || ''} onChange={e => setEdit('theory_card', e.target.value)} rows={3} style={{ resize: 'vertical' }} />
+                            </div>
+                            <div className="form-group"><label>Theory (Hinglish)</label>
+                              <textarea value={editingStep.theory_card_hinglish || ''} onChange={e => setEdit('theory_card_hinglish', e.target.value)} rows={3} style={{ resize: 'vertical' }} />
                             </div>
                             <div className="form-group"><label>Video</label>
                               <VideoField value={editingStep.video_url || ''} onChange={v => setEdit('video_url', v)} />

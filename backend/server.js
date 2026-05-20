@@ -82,7 +82,7 @@ app.get('/api/courses', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({ success: true, message: 'EME Backend is running!' });
+  res.json({ success: true, message: 'GOKOO Backend is running!' });
 });
 
 const fs = require('fs');
@@ -99,12 +99,12 @@ const runMigrations = async () => {
 runMigrations()
   .then(() => {
     app.listen(PORT, () => {
-      console.log('EME Backend running on port ' + PORT);
+      console.log('GOKOO Backend running on port ' + PORT);
     });
   })
   .catch(err => {
     console.error('Migration failed:', err.message);
     app.listen(PORT, () => {
-      console.log('EME Backend running on port ' + PORT + ' (migrations failed)');
+      console.log('GOKOO Backend running on port ' + PORT + ' (migrations failed)');
     });
   });

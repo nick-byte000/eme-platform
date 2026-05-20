@@ -40,7 +40,7 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
-        <h1 style={{ marginBottom: '2rem', textAlign: 'center', fontSize: '24px', fontWeight: '700' }}>EME Admin Panel</h1>
+        <h1 style={{ marginBottom: '2rem', textAlign: 'center', fontSize: '24px', fontWeight: '700' }}>GOKOO Admin Panel</h1>
         
         {error && <div className="alert alert-error">{error}</div>}
         

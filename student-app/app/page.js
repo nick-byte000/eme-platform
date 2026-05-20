@@ -72,7 +72,7 @@ export default function LandingPage() {
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
         }}>
-          EME
+          GOKOO
         </h1>
         <p style={{
           fontSize: '1.25rem',
@@ -81,7 +81,7 @@ export default function LandingPage() {
           marginBottom: '0.75rem',
           letterSpacing: '-0.01em',
         }}>
-          Elastic Mastery Ecosystem
+          Goal of Knowledge
         </p>
         <p style={{ fontSize: '16px', color: '#9090a8', maxWidth: '560px', margin: '0 auto 2.5rem' }}>
           Adaptive ladder-based questions that build your understanding step by step.

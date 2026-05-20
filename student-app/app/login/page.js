@@ -103,8 +103,8 @@ function LoginForm() {
             background: 'linear-gradient(135deg, #c4c0ff 0%, #6c63ff 50%, #8b5cf6 100%)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             marginBottom: '4px', letterSpacing: '-0.02em',
-          }}>EME</div>
-          <div style={{ color: '#9090a8', fontSize: '13px' }}>Elastic Mastery Ecosystem</div>
+          }}>GOKOO</div>
+          <div style={{ color: '#9090a8', fontSize: '13px' }}>Goal of Knowledge</div>
         </div>
 
         {/* Step bar */}

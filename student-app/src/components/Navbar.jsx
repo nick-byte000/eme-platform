@@ -28,7 +28,7 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      <Link href="/concepts" className="navbar-brand">EME</Link>
+      <Link href="/concepts" className="navbar-brand">GOKOO</Link>
       <div className="navbar-links">
         {links.map(l => (
           <Link

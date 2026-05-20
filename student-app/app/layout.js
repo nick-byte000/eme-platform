@@ -2,7 +2,7 @@ import '../src/globals.css';
 import 'katex/dist/katex.min.css';
 
 export const metadata = {
-  title: 'EME Student App',
+  title: 'GOKOO',
 };
 
 export default function RootLayout({ children }) {

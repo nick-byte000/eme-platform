@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS boss_questions (
+  id SERIAL PRIMARY KEY,
+  concept_id INTEGER REFERENCES concepts(id),
+  subject TEXT NOT NULL,
+  chapter_name TEXT NOT NULL,
+  topic_name TEXT NOT NULL,
+  subtopic_name TEXT,
+  concept_name TEXT NOT NULL,
+  title TEXT NOT NULL,
+  question_text TEXT NOT NULL,
+  question_image_url TEXT,
+  difficulty TEXT DEFAULT 'medium',
+  total_steps INTEGER NOT NULL,
+  target_exam TEXT DEFAULT 'all',
+  language TEXT DEFAULT 'english',
+  source TEXT,
+  version INTEGER DEFAULT 1,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW()
+);

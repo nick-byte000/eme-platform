@@ -1,0 +1,2 @@
+ALTER TABLE concepts
+  ADD COLUMN IF NOT EXISTS course_ids INTEGER[] DEFAULT '{}';

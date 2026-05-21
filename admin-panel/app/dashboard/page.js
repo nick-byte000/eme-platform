@@ -12,6 +12,7 @@ const NAV = [
   { href: '/library',   label: 'Library'   },
   { href: '/students',  label: 'Students'  },
   { href: '/revenue',   label: 'Revenue'   },
+  { href: '/landing',   label: 'Landing Page' },
 ];
 
 const QUICK = [
@@ -21,6 +22,7 @@ const QUICK = [
   { href: '/library',   icon: '🔬', label: 'Physics Library',  desc: 'Manage chapters, topics & subtopics',     color: '#60a5fa' },
   { href: '/students',  icon: '👥', label: 'Students',         desc: 'View usage, accuracy & delete users',     color: '#f87171' },
   { href: '/revenue',   icon: '💰', label: 'Revenue',          desc: 'Enrollment totals, monthly breakdown',    color: '#a78bfa' },
+  { href: '/landing',   icon: '🌐', label: 'Landing Page',     desc: 'Edit all text on the public website',     color: '#f5c842' },
 ];
 
 export default function DashboardPage() {

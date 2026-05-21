@@ -91,6 +91,18 @@ app.get('/api/courses', async (req, res) => {
   }
 });
 
+// Public landing page content
+app.get('/api/landing-content', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT key, value FROM landing_content ORDER BY section, key');
+    const content = {};
+    result.rows.forEach(r => { content[r.key] = r.value; });
+    res.json({ success: true, content });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.json({ success: true, message: 'GOKOO Backend is running!' });
 });

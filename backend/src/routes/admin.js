@@ -607,4 +607,33 @@ router.delete('/practice-questions/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ── Landing Page Content CMS ──────────────────────────────────
+
+router.get('/landing-content', adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT key, value, label, section FROM landing_content ORDER BY section, key');
+    res.json({ success: true, content: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.put('/landing-content', adminAuth, async (req, res) => {
+  try {
+    const { updates } = req.body; // [{ key, value }, ...]
+    if (!Array.isArray(updates) || updates.length === 0) {
+      return res.status(400).json({ success: false, error: 'updates array required' });
+    }
+    for (const { key, value } of updates) {
+      await pool.query(
+        'UPDATE landing_content SET value = $1, updated_at = NOW() WHERE key = $2',
+        [value, key]
+      );
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 module.exports = router;

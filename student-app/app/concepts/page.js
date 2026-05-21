@@ -21,11 +21,12 @@ const Icons = {
   Biochemistry: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M7 3c5 3 5 6.5 0 9.5S2 18.5 7 21"/><path d="M17 3c-5 3-5 6.5 0 9.5s5 6 0 9"/><line x1="8.5" y1="7" x2="15.5" y2="7"/><line x1="8.5" y1="12" x2="15.5" y2="12"/><line x1="8.5" y1="17" x2="15.5" y2="17"/></svg>,
   'Analytical Chemistry': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/><line x1="6.4" y1="7.4" x2="10" y2="10"/><line x1="17.6" y1="7.4" x2="14" y2="10"/><line x1="6.4" y1="16.6" x2="10" y2="14"/><line x1="17.6" y1="16.6" x2="14" y2="14"/></svg>,
   // Mathematics
-  Algebra: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/><path d="M8 5l-4 7 4 7"/></svg>,
-  Calculus: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M8 3C6 3 4 5 4 12s2 9 4 9"/><path d="M16 3c2 0 4 2 4 9s-2 9-4 9"/><line x1="4" y1="12" x2="20" y2="12"/></svg>,
-  Trigonometry: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><polygon points="12,4 22,20 2,20"/><line x1="12" y1="20" x2="12" y2="12"/></svg>,
-  'Coordinate Geometry': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="16" cy="8" r="2.5"/><path d="M4 17 Q8 10 12 12 Q16 14 20 7"/></svg>,
+  Algebra: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><line x1="3" y1="20" x2="3" y2="4"/><polyline points="3,4 2,6 4,6 3,4"/><line x1="3" y1="20" x2="21" y2="20"/><polyline points="21,20 19,19 19,21 21,20"/><path d="M5 16 Q9 8 13 12 Q17 16 21 8"/></svg>,
+  Geometry: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12,3 22,20 2,20"/><line x1="12" y1="20" x2="12" y2="11"/><line x1="12" y1="17" x2="14" y2="17"/><line x1="12" y1="17" x2="12" y2="15"/></svg>,
+  Calculus: (c) => <svg width="28" height="28" viewBox="0 0 26 26" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M5 4C3 4 2 6 2 13s1 9 3 9"/><path d="M21 4c2 0 3 2 3 9s-1 9-3 9"/><text x="7" y="17" fontSize="9" fontFamily="serif" fill={c} stroke="none">∫x dx</text></svg>,
   Statistics: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="5" width="4" height="16" rx="1"/></svg>,
+  'Discrete Math': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="12" r="7"/><circle cx="15" cy="12" r="7"/></svg>,
+  'Number Theory': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round"><text x="3" y="18" fontSize="18" fontFamily="serif" fill={c} stroke="none" fontWeight="400">π</text></svg>,
   // Botany
   Morphology: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M12 22V12"/><path d="M12 12C12 6 6 4 3 6c3 1 6 4 9 6"/><path d="M12 12c0-6 6-8 9-6-3 1-6 4-9 6"/></svg>,
   Anatomy: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="7" r="4"/><path d="M8 14l-3 8"/><path d="M16 14l3 8"/><line x1="8" y1="16" x2="16" y2="16"/></svg>,
@@ -103,6 +104,70 @@ const PhysicsBg = ({ color }) => (
   </>
 );
 
+const MathematicsBg = ({ color }) => (
+  <>
+    {/* Full-width coordinate axes */}
+    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.09, pointerEvents: 'none' }} preserveAspectRatio="xMidYMid slice" viewBox="0 0 1400 800">
+      {/* Y axis */}
+      <line x1="700" y1="60" x2="700" y2="680" stroke={color} strokeWidth="1.5"/>
+      <polygon points="700,48 694,66 706,66" fill={color}/>
+      <text x="712" y="78" fill={color} fontSize="22" fontStyle="italic" fontFamily="serif">y</text>
+      {/* X axis */}
+      <line x1="80" y1="400" x2="1320" y2="400" stroke={color} strokeWidth="1.5"/>
+      <polygon points="1332,400 1314,394 1314,406" fill={color}/>
+      <text x="1300" y="428" fill={color} fontSize="22" fontStyle="italic" fontFamily="serif">x</text>
+      {/* Sine wave 1 */}
+      <path d="M100 400 Q200 260,350 400 Q500 540,650 400 Q800 260,950 400 Q1100 540,1200 400 Q1280 310,1350 370" fill="none" stroke={color} strokeWidth="2"/>
+      {/* Cosine wave (offset) */}
+      <path d="M100 310 Q200 200,350 310 Q500 420,650 310 Q800 200,950 310 Q1100 420,1200 310" fill="none" stroke={color} strokeWidth="1.2" strokeDasharray="6 4"/>
+    </svg>
+
+    {/* Left top: circle with inscribed right triangle */}
+    <svg style={{ position: 'absolute', left: '3%', top: '10%', width: '180px', opacity: 0.13, pointerEvents: 'none' }} viewBox="0 0 200 200" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="100" cy="100" r="88"/>
+      <polygon points="18,175 188,175 188,22"/>
+      <rect x="172" y="159" width="16" height="16"/>
+    </svg>
+
+    {/* Left bottom: 3D polyhedron */}
+    <svg style={{ position: 'absolute', left: '1%', bottom: '8%', width: '145px', opacity: 0.13, pointerEvents: 'none' }} viewBox="0 0 160 180" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="80,10 155,55 155,125 80,170 5,125 5,55"/>
+      <line x1="80" y1="10" x2="80" y2="90"/>
+      <line x1="155" y1="55" x2="80" y2="90"/>
+      <line x1="155" y1="125" x2="80" y2="90"/>
+      <line x1="80" y1="170" x2="80" y2="90"/>
+      <line x1="5" y1="125" x2="80" y2="90"/>
+      <line x1="5" y1="55" x2="80" y2="90"/>
+    </svg>
+
+    {/* Right top: 3D wireframe cube */}
+    <svg style={{ position: 'absolute', right: '3%', top: '8%', width: '165px', opacity: 0.13, pointerEvents: 'none' }} viewBox="0 0 180 170" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Front face */}
+      <rect x="40" y="70" width="90" height="85" rx="2"/>
+      {/* Top face */}
+      <polygon points="40,70 85,30 175,30 130,70"/>
+      {/* Right face */}
+      <polygon points="130,70 175,30 175,115 130,155"/>
+    </svg>
+
+    {/* Right middle: 3D surface/wave plot */}
+    <svg style={{ position: 'absolute', right: '2%', top: '48%', width: '190px', opacity: 0.12, pointerEvents: 'none' }} viewBox="0 0 220 130" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round">
+      <path d="M10 90 Q55 45,110 65 Q160 85,210 50"/>
+      <path d="M10 105 Q55 60,110 80 Q160 100,210 65"/>
+      <path d="M10 118 Q55 75,110 95 Q160 115,210 80"/>
+      <path d="M35 118 Q45 70,60 40"/>
+      <path d="M75 118 Q85 72,100 42"/>
+      <path d="M115 118 Q125 80,140 55"/>
+      <path d="M155 118 Q165 88,180 62"/>
+    </svg>
+
+    {/* Right bottom: infinity symbol */}
+    <svg style={{ position: 'absolute', right: '3%', bottom: '6%', width: '170px', opacity: 0.14, pointerEvents: 'none' }} viewBox="0 0 220 110" fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round">
+      <path d="M110 55 C110 28,70 10,45 30 C20 50,20 75,45 85 C70 95,110 77,110 55 C110 28,150 10,175 30 C200 50,200 75,175 85 C150 95,110 77,110 55Z"/>
+    </svg>
+  </>
+);
+
 /* ── Subject Config ── */
 const SUBJECT_CONFIG = {
   Physics: {
@@ -142,22 +207,21 @@ const SUBJECT_CONFIG = {
     BgDecor: ChemistryBg,
   },
   Mathematics: {
-    gradient: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
-    primary: '#2563eb', secondary: '#3b82f6',
-    bg: '#eff6ff', chipBg: '#dbeafe', chipBorder: '#93c5fd',
-    symbolColor: 'rgba(37,99,235,0.10)',
-    subtitle: 'Master the language of the universe.',
+    gradient: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%)',
+    primary: '#2563eb', secondary: '#1e3a8a',
+    bg: '#f0f4ff', chipBg: '#dbeafe', chipBorder: '#93c5fd',
+    symbolColor: 'rgba(37,99,235,0.11)',
+    subtitle: 'Think. Solve. Discover.',
     icon: '∑',
-    categories: ['Algebra','Calculus','Trigonometry','Coordinate Geometry','Statistics'],
+    categories: ['Algebra','Geometry','Calculus','Statistics','Discrete Math','Number Theory'],
     symbols: [
-      { t:'π',     x:'8%',  y:'20%', s:30 },
-      { t:'∑',     x:'76%', y:'16%', s:28 },
-      { t:'∞',     x:'5%',  y:'55%', s:30 },
-      { t:'∫₀^∞', x:'78%', y:'55%', s:15 },
-      { t:'√x',   x:'18%', y:'78%', s:24 },
-      { t:'θ',    x:'74%', y:'78%', s:28 },
+      { t:'a²+b²=c²',         x:'15%', y:'18%', s:14 },
+      { t:'eⁱᵖ + 1 = 0',      x:'72%', y:'15%', s:14 },
+      { t:'x = −b±√(b²−4ac)', x:'5%',  y:'52%', s:11 },
+      { t:'2a',                x:'8%',  y:'58%', s:11 },
+      { t:'∑ 1/n² = π²/6',    x:'73%', y:'48%', s:12 },
     ],
-    BgDecor: null,
+    BgDecor: MathematicsBg,
   },
   Botany: {
     gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',

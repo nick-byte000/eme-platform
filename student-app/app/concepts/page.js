@@ -27,16 +27,18 @@ const Icons = {
   Statistics: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="5" width="4" height="16" rx="1"/></svg>,
   'Discrete Math': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="12" r="7"/><circle cx="15" cy="12" r="7"/></svg>,
   'Number Theory': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round"><text x="3" y="18" fontSize="18" fontFamily="serif" fill={c} stroke="none" fontWeight="400">π</text></svg>,
-  // Botany
-  Morphology: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M12 22V12"/><path d="M12 12C12 6 6 4 3 6c3 1 6 4 9 6"/><path d="M12 12c0-6 6-8 9-6-3 1-6 4-9 6"/></svg>,
+  // Biology / Botany / Zoology
+  Botany: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M12 22V12"/><path d="M12 12C12 6 6 4 3 6c3 1 6 4 9 6"/><path d="M12 12c0-6 6-8 9-6-3 1-6 4-9 6"/></svg>,
+  Genetics: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M7 3c5 3 5 6.5 0 9.5S2 18.5 7 21"/><path d="M17 3c-5 3-5 6.5 0 9.5s5 6 0 9"/><line x1="8.5" y1="7" x2="15.5" y2="7"/><line x1="8.5" y1="12" x2="15.5" y2="12"/><line x1="8.5" y1="17" x2="15.5" y2="17"/></svg>,
+  'Cell Biology': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="3"/><circle cx="8" cy="8" r="1.2" fill={c}/><circle cx="16" cy="9" r="1" fill={c}/><circle cx="7" cy="15" r="1" fill={c}/></svg>,
+  'Human Biology': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="5" r="2.5"/><path d="M12 7.5v6"/><path d="M9 10h6"/><path d="M12 13.5l-2.5 5"/><path d="M12 13.5l2.5 5"/></svg>,
+  Evolution: (c) => <svg width="28" height="28" viewBox="0 0 26 20" fill="none" stroke={c} strokeWidth="1.6" strokeLinecap="round"><circle cx="3" cy="14" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="9" r="2"/><circle cx="21" cy="6" r="2"/><line x1="5" y1="14" x2="7" y2="12"/><line x1="11" y1="12" x2="13" y2="9"/><line x1="17" y1="9" x2="19" y2="6"/><polyline points="19,3 23,6 19,9"/></svg>,
+  Microbiology: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M6 3h12v2l2 2v10l-2 2H6l-2-2V7l2-2V3z"/><circle cx="12" cy="12" r="3"/><line x1="10" y1="21" x2="10" y2="23"/><line x1="14" y1="21" x2="14" y2="23"/><line x1="8" y1="22" x2="16" y2="22"/></svg>,
+  Ecology: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M12 22V12"/><path d="M12 12C10 8 6 7 3 9c2 1 6 3 9 3"/><path d="M12 12c2-4 6-5 9-3-2 1-6 3-9 3"/><path d="M12 16c-2-2-5-2-7-1 1 1 4 2 7 1"/></svg>,
+  Morphology: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><ellipse cx="12" cy="12" rx="9" ry="6"/><ellipse cx="12" cy="12" rx="4" ry="2.5"/></svg>,
   Anatomy: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="7" r="4"/><path d="M8 14l-3 8"/><path d="M16 14l3 8"/><line x1="8" y1="16" x2="16" y2="16"/></svg>,
   Physiology: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M3 12 Q5 8 8 12 Q11 16 12 12 Q13 8 16 12 Q19 16 21 12"/></svg>,
-  Ecology: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/></svg>,
   Reproduction: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="12" r="5"/><circle cx="16" cy="12" r="3"/><line x1="19" y1="9" x2="21" y2="7"/><line x1="19" y1="15" x2="21" y2="17"/></svg>,
-  // Zoology
-  'Cell Biology': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><ellipse cx="12" cy="12" rx="9" ry="6"/><ellipse cx="12" cy="12" rx="4" ry="2.5"/></svg>,
-  Genetics: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M7 3c5 3 5 6.5 0 9.5S2 18.5 7 21"/><path d="M17 3c-5 3-5 6.5 0 9.5s5 6 0 9"/></svg>,
-  Evolution: (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><path d="M3 20 Q8 12 14 10 Q18 8 21 4"/><path d="M18 4l3 0 0 3"/><path d="M8 20 Q12 16 14 10"/></svg>,
   'Human Physiology': (c) => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5l-3 5"/><path d="M12 12l3 5"/><line x1="9" y1="10" x2="15" y2="10"/></svg>,
 };
 
@@ -168,6 +170,109 @@ const MathematicsBg = ({ color }) => (
   </>
 );
 
+const BiologyBg = ({ color }) => (
+  <>
+    {/* Left: DNA double helix */}
+    <svg style={{ position: 'absolute', left: '1%', top: '5%', height: '55%', opacity: 0.13, pointerEvents: 'none' }} viewBox="0 0 120 500" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round">
+      {/* Left strand */}
+      <path d="M30 0 Q70 40, 30 80 Q-10 120, 30 160 Q70 200, 30 240 Q-10 280, 30 320 Q70 360, 30 400 Q-10 440, 30 480"/>
+      {/* Right strand */}
+      <path d="M90 0 Q50 40, 90 80 Q130 120, 90 160 Q50 200, 90 240 Q130 280, 90 320 Q50 360, 90 400 Q130 440, 90 480"/>
+      {/* Rungs */}
+      {[30,70,110,150,190,230,270,310,350,390,430,470].map((y,i) => (
+        <line key={i} x1={i%2===0?35:85} y1={y} x2={i%2===0?85:35} y2={y}/>
+      ))}
+    </svg>
+
+    {/* Left bottom: animal cell cross-section */}
+    <svg style={{ position: 'absolute', left: '-4%', bottom: '-2%', width: '280px', opacity: 0.13, pointerEvents: 'none' }} viewBox="0 0 300 300" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round">
+      {/* Cell membrane (outer) */}
+      <ellipse cx="150" cy="160" rx="135" ry="120"/>
+      {/* Nucleus */}
+      <ellipse cx="140" cy="155" rx="50" ry="42"/>
+      <ellipse cx="140" cy="155" rx="30" ry="24"/>
+      {/* Mitochondria */}
+      <ellipse cx="220" cy="110" rx="20" ry="10" transform="rotate(-30 220 110)"/>
+      <path d="M204 104 Q212 110 204 116" strokeWidth="1.2"/>
+      <ellipse cx="80" cy="200" rx="18" ry="9" transform="rotate(20 80 200)"/>
+      {/* ER/vesicles */}
+      <circle cx="220" cy="185" r="12"/>
+      <circle cx="200" cy="210" r="8"/>
+      <circle cx="175" cy="225" r="6"/>
+      <circle cx="85" cy="120" r="10"/>
+      <circle cx="100" cy="100" r="7"/>
+      {/* Cell projections */}
+      <path d="M80 60 Q60 40 50 20"/>
+      <path d="M120 48 Q115 28 120 10"/>
+      <path d="M50 180 Q30 185 15 175"/>
+    </svg>
+
+    {/* Right top: neuron */}
+    <svg style={{ position: 'absolute', right: '1%', top: '5%', width: '220px', opacity: 0.12, pointerEvents: 'none' }} viewBox="0 0 240 200" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round">
+      {/* Cell body */}
+      <circle cx="120" cy="100" r="22"/>
+      {/* Dendrites */}
+      <path d="M100 88 Q75 65 50 45"/>
+      <path d="M100 88 Q80 70 65 45"/>
+      <path d="M108 82 Q95 55 90 30"/>
+      <path d="M120 78 Q120 50 125 25"/>
+      <path d="M132 82 Q148 58 165 38"/>
+      {/* Axon */}
+      <path d="M140 112 Q175 130 210 125"/>
+      <path d="M210 125 Q225 122 230 118"/>
+      <path d="M210 125 Q222 132 228 140"/>
+      {/* Small dots on branches */}
+      <circle cx="50" cy="45" r="3" fill={color}/>
+      <circle cx="65" cy="45" r="2.5" fill={color}/>
+      <circle cx="90" cy="30" r="2.5" fill={color}/>
+      <circle cx="125" cy="25" r="2.5" fill={color}/>
+      <circle cx="165" cy="38" r="3" fill={color}/>
+    </svg>
+
+    {/* Right middle: plant leaves */}
+    <svg style={{ position: 'absolute', right: '0%', top: '35%', width: '170px', opacity: 0.15, pointerEvents: 'none' }} viewBox="0 0 180 220" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round">
+      {/* Main branch */}
+      <path d="M90 220 Q85 160 80 100 Q78 60 90 20"/>
+      {/* Large leaf right */}
+      <path d="M82 80 Q130 50 150 30 Q160 20 155 15 Q110 25 90 20 Q70 30 82 80Z"/>
+      <path d="M82 80 Q120 45 155 15"/>
+      {/* Large leaf left */}
+      <path d="M80 120 Q30 90 15 65 Q10 55 15 50 Q55 70 80 120Z"/>
+      <path d="M80 120 Q45 85 15 50"/>
+      {/* Small leaf right */}
+      <path d="M83 150 Q115 135 130 120 Q138 112 134 108 Q105 120 83 150Z"/>
+      <path d="M83 150 Q112 130 134 108"/>
+    </svg>
+
+    {/* Right bottom: microscope */}
+    <svg style={{ position: 'absolute', right: '2%', bottom: '3%', width: '160px', opacity: 0.13, pointerEvents: 'none' }} viewBox="0 0 180 240" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      {/* Eyepiece */}
+      <rect x="80" y="10" width="20" height="35" rx="4"/>
+      {/* Arm */}
+      <path d="M90 45 Q85 60 75 80 Q70 100 72 140"/>
+      {/* Objective */}
+      <rect x="62" y="140" width="20" height="30" rx="3"/>
+      <rect x="65" y="170" width="14" height="15" rx="2"/>
+      {/* Stage */}
+      <rect x="40" y="185" width="80" height="10" rx="2"/>
+      <line x1="60" y1="185" x2="60" y2="195"/>
+      <line x1="100" y1="185" x2="100" y2="195"/>
+      {/* Base */}
+      <path d="M30 220 Q80 210 150 220"/>
+      <line x1="30" y1="220" x2="150" y2="220"/>
+      {/* Coarse focus knob */}
+      <circle cx="115" cy="130" r="14"/>
+      <circle cx="115" cy="130" r="8"/>
+    </svg>
+
+    {/* Floating hex cells + dots */}
+    <svg style={{ position: 'absolute', right: '20%', top: '12%', width: '80px', opacity: 0.10, pointerEvents: 'none' }} viewBox="0 0 100 100" fill="none" stroke={color} strokeWidth="1.5">
+      <polygon points="50,5 90,27 90,73 50,95 10,73 10,27"/>
+      <polygon points="50,22 72,34 72,66 50,78 28,66 28,34"/>
+    </svg>
+  </>
+);
+
 /* ── Subject Config ── */
 const SUBJECT_CONFIG = {
   Physics: {
@@ -223,41 +328,56 @@ const SUBJECT_CONFIG = {
     ],
     BgDecor: MathematicsBg,
   },
-  Botany: {
-    gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
-    primary: '#16a34a', secondary: '#22c55e',
-    bg: '#f0fdf4', chipBg: '#bbf7d0', chipBorder: '#86efac',
+  Biology: {
+    gradient: 'linear-gradient(135deg, #14532d 0%, #166534 40%, #16a34a 80%, #22c55e 100%)',
+    primary: '#16a34a', secondary: '#14532d',
+    bg: '#f0fdf4', chipBg: '#dcfce7', chipBorder: '#86efac',
     symbolColor: 'rgba(22,163,74,0.10)',
-    subtitle: 'Understand the science of plant life.',
+    subtitle: 'Explore life. Understand living systems.',
     icon: '🌿',
-    categories: ['Morphology','Anatomy','Physiology','Ecology','Reproduction'],
+    categories: ['Botany','Genetics','Cell Biology','Human Biology','Evolution','Microbiology','Ecology'],
     symbols: [
-      { t:'ATP',  x:'8%',  y:'20%', s:16 },
-      { t:'CO₂',  x:'76%', y:'16%', s:16 },
-      { t:'O₂',   x:'5%',  y:'55%', s:20 },
-      { t:'RuBP', x:'78%', y:'55%', s:14 },
-      { t:'🌱',   x:'18%', y:'78%', s:28 },
-      { t:'🍃',   x:'74%', y:'78%', s:26 },
+      { t:'ATP',      x:'70%', y:'14%', s:14 },
+      { t:'DNA',      x:'15%', y:'16%', s:15 },
+      { t:'mRNA',     x:'72%', y:'55%', s:14 },
+      { t:'C₆H₁₂O₆', x:'6%',  y:'52%', s:13 },
+      { t:'6CO₂+6H₂O', x:'30%', y:'88%', s:12 },
     ],
-    BgDecor: null,
+    BgDecor: BiologyBg,
+  },
+  Botany: {
+    gradient: 'linear-gradient(135deg, #14532d 0%, #166534 40%, #16a34a 80%, #22c55e 100%)',
+    primary: '#16a34a', secondary: '#14532d',
+    bg: '#f0fdf4', chipBg: '#dcfce7', chipBorder: '#86efac',
+    symbolColor: 'rgba(22,163,74,0.10)',
+    subtitle: 'Explore life. Understand living systems.',
+    icon: '🌿',
+    categories: ['Botany','Genetics','Cell Biology','Human Biology','Evolution','Microbiology','Ecology'],
+    symbols: [
+      { t:'ATP',      x:'70%', y:'14%', s:14 },
+      { t:'CO₂',      x:'15%', y:'16%', s:15 },
+      { t:'RuBP',     x:'72%', y:'55%', s:13 },
+      { t:'C₆H₁₂O₆', x:'6%',  y:'52%', s:13 },
+      { t:'6CO₂+6H₂O', x:'30%', y:'88%', s:12 },
+    ],
+    BgDecor: BiologyBg,
   },
   Zoology: {
-    gradient: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-    primary: '#d97706', secondary: '#f59e0b',
-    bg: '#fffbeb', chipBg: '#fef3c7', chipBorder: '#fde68a',
-    symbolColor: 'rgba(217,119,6,0.10)',
-    subtitle: 'Discover the diversity of animal life.',
+    gradient: 'linear-gradient(135deg, #14532d 0%, #166534 40%, #16a34a 80%, #22c55e 100%)',
+    primary: '#16a34a', secondary: '#14532d',
+    bg: '#f0fdf4', chipBg: '#dcfce7', chipBorder: '#86efac',
+    symbolColor: 'rgba(22,163,74,0.10)',
+    subtitle: 'Explore life. Understand living systems.',
     icon: '🧬',
-    categories: ['Cell Biology','Genetics','Evolution','Ecology','Human Physiology'],
+    categories: ['Botany','Genetics','Cell Biology','Human Biology','Evolution','Microbiology','Ecology'],
     symbols: [
-      { t:'DNA',  x:'8%',  y:'20%', s:16 },
-      { t:'RNA',  x:'76%', y:'16%', s:16 },
-      { t:'ATP',  x:'5%',  y:'55%', s:18 },
-      { t:'G·C',  x:'78%', y:'55%', s:16 },
-      { t:'🧬',   x:'18%', y:'78%', s:28 },
-      { t:'🦠',   x:'74%', y:'78%', s:26 },
+      { t:'DNA',  x:'70%', y:'14%', s:15 },
+      { t:'RNA',  x:'15%', y:'16%', s:15 },
+      { t:'ATP',  x:'5%',  y:'52%', s:16 },
+      { t:'mRNA', x:'72%', y:'55%', s:14 },
+      { t:'AUG',  x:'30%', y:'88%', s:14 },
     ],
-    BgDecor: null,
+    BgDecor: BiologyBg,
   },
 };
 
@@ -496,16 +616,42 @@ export default function ConceptsPage() {
               ) : null}
 
               {/* Subject title */}
-              <h1 style={{
-                fontSize: 'clamp(3rem, 9vw, 5.8rem)', fontWeight: 900,
-                letterSpacing: '0.06em',
-                background: cfg.gradient,
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                lineHeight: 1, zIndex: 2, position: 'relative', userSelect: 'none',
-                textAlign: 'center',
-              }}>
-                {(activeSubject || 'PHYSICS').toUpperCase()}
-              </h1>
+              {['Biology','Botany','Zoology'].includes(activeSubject) ? (
+                <h1 style={{
+                  fontSize: 'clamp(3rem, 9vw, 5.8rem)', fontWeight: 900,
+                  letterSpacing: '0.06em', lineHeight: 1, zIndex: 2, position: 'relative',
+                  userSelect: 'none', textAlign: 'center', display: 'flex', alignItems: 'flex-start',
+                }}>
+                  {(activeSubject || 'BIOLOGY').toUpperCase().split('').map((ch, i) => (
+                    <span key={i} style={{
+                      background: cfg.gradient,
+                      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                      position: 'relative', display: 'inline-block',
+                    }}>
+                      {ch}
+                      {ch === 'I' && (
+                        <span style={{
+                          position: 'absolute', top: '-0.35em', left: '50%',
+                          transform: 'translateX(-50%)',
+                          fontSize: '0.32em', WebkitTextFillColor: cfg.primary,
+                          color: cfg.primary, lineHeight: 1,
+                        }}>🌿</span>
+                      )}
+                    </span>
+                  ))}
+                </h1>
+              ) : (
+                <h1 style={{
+                  fontSize: 'clamp(3rem, 9vw, 5.8rem)', fontWeight: 900,
+                  letterSpacing: '0.06em',
+                  background: cfg.gradient,
+                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                  lineHeight: 1, zIndex: 2, position: 'relative', userSelect: 'none',
+                  textAlign: 'center',
+                }}>
+                  {(activeSubject || 'PHYSICS').toUpperCase()}
+                </h1>
+              )}
             </div>
 
             {/* Subtitle */}
@@ -623,14 +769,21 @@ export default function ConceptsPage() {
               </div>
             )}
 
-            {/* Scroll to explore */}
+            {/* Scroll button */}
             <button className="scroll-btn" onClick={scrollToContent} style={{
-              display: 'flex', alignItems: 'center', gap: '8px', flexDirection: 'column',
+              display: 'flex', alignItems: 'center', gap: '6px', flexDirection: 'column',
               background: 'none', border: 'none', cursor: 'pointer', padding: '8px',
               fontSize: '13px', fontWeight: 500, color: cfg.primary, transition: 'all 0.2s',
             }}>
-              Scroll to {activeSubject === 'Chemistry' ? 'explore' : 'discover'}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={cfg.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              {['Biology','Botany','Zoology'].includes(activeSubject) && (
+                <svg width="22" height="28" viewBox="0 0 22 32" fill="none" stroke={cfg.primary} strokeWidth="1.8" strokeLinecap="round">
+                  <rect x="1" y="1" width="20" height="30" rx="10"/>
+                  <circle cx="11" cy="9" r="3"/>
+                  <line x1="11" y1="12" x2="11" y2="18"/>
+                </svg>
+              )}
+              Scroll to explore
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={cfg.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </button>

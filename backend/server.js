@@ -87,11 +87,20 @@ app.get('/', (req, res) => {
 
 const fs = require('fs');
 const runMigrations = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS _migrations (
+      filename TEXT PRIMARY KEY,
+      run_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
   const migrationsPath = path.join(__dirname, 'src/database/migrations');
   const files = fs.readdirSync(migrationsPath).sort();
   for (const file of files) {
+    const { rows } = await pool.query('SELECT 1 FROM _migrations WHERE filename = $1', [file]);
+    if (rows.length > 0) continue;
     const sql = fs.readFileSync(path.join(migrationsPath, file), 'utf8');
     await pool.query(sql);
+    await pool.query('INSERT INTO _migrations (filename) VALUES ($1)', [file]);
     console.log('Migration:', file);
   }
 };

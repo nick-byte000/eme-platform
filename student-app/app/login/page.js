@@ -82,7 +82,11 @@ function LoginForm() {
       const data = await apiCall('/auth/verify-otp', 'POST', payload);
       if (!data.success) { setError(data.error || 'OTP verification failed'); return; }
       saveAuth(data.token, data.student);
-      router.push('/concepts');
+      if (selectedCourseId) {
+        router.push(`/checkout?course_id=${selectedCourseId}`);
+      } else {
+        router.push('/concepts');
+      }
     } catch {
       setError('Server error. Please try again.');
     } finally {

@@ -538,9 +538,25 @@ export default function ConceptsPage() {
         @keyframes chipHover {
           to { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
         }
+        @keyframes bubble {
+          0%   { transform: translateY(0) scale(1); opacity: 0.7; }
+          100% { transform: translateY(-90px) scale(0.3); opacity: 0; }
+        }
+        @keyframes rotateSlow {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes sway {
+          0%,100% { transform: rotate(-10deg) translateY(0); }
+          50%     { transform: rotate(10deg) translateY(-8px); }
+        }
+        @keyframes pulse {
+          0%,100% { transform: scale(1); opacity: 0.18; }
+          50%     { transform: scale(1.06); opacity: 0.28; }
+        }
         .hero-content { animation: fadeUp 0.55s ease forwards; }
         .cat-chip:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important; }
-        .scroll-btn:hover { background: #1a1035 !important; color: #fff !important; }
+        .scroll-btn:hover { background: rgba(255,255,255,0.15) !important; color: #fff !important; }
       `}</style>
 
       {/* Transparent top navbar */}
@@ -581,17 +597,48 @@ export default function ConceptsPage() {
           position: 'relative', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           paddingTop: '74px', paddingBottom: '28px',
+          background: cfg.gradient,
         }}>
 
           {/* Background lab/subject decorations */}
-          {BgDecor && <BgDecor color={cfg.primary} />}
+          {BgDecor && <BgDecor color="rgba(255,255,255,0.6)" />}
+
+          {/* Subject floating particles */}
+          {activeSubject === 'Chemistry' && (
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+              {[...Array(8)].map((_, i) => (
+                <div key={i} style={{ position: 'absolute', left: `${7 + i * 11}%`, bottom: `${(i * 7) % 35}%`, width: `${7 + (i % 4) * 4}px`, height: `${7 + (i % 4) * 4}px`, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.05)', animation: `bubble ${3 + i * 0.7}s ease-in ${i * 0.55}s infinite` }} />
+              ))}
+            </div>
+          )}
+          {activeSubject === 'Mathematics' && (
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+              {[{s:18,x:'7%',y:'20%',c:0},{s:22,x:'81%',y:'17%',c:1},{s:14,x:'11%',y:'66%',c:0},{s:26,x:'77%',y:'64%',c:1},{s:16,x:'44%',y:'78%',c:0}].map((sh,i) => (
+                <div key={i} style={{ position: 'absolute', left: sh.x, top: sh.y, width: `${sh.s}px`, height: `${sh.s}px`, border: '1.5px solid rgba(255,255,255,0.2)', borderRadius: sh.c === 0 ? '0' : '50%', animation: `rotateSlow ${8 + i * 4}s linear ${i % 2 === 0 ? 'infinite' : 'infinite reverse'}` }} />
+              ))}
+            </div>
+          )}
+          {['Biology','Botany','Zoology'].includes(activeSubject) && (
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+              {['🌿','🍃','🌱','🍀','🌿','🍃'].map((leaf, i) => (
+                <div key={i} style={{ position: 'absolute', left: `${8 + i * 16}%`, top: `${10 + (i % 3) * 24}%`, fontSize: `${13 + (i % 3) * 5}px`, opacity: 0.22, animation: `sway ${2.5 + i * 0.55}s ease-in-out ${i * 0.3}s infinite` }}>{leaf}</div>
+              ))}
+            </div>
+          )}
+          {(activeSubject === 'Physics' || !activeSubject) && (
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+              {[{x:'14%',y:'28%',s:4},{x:'74%',y:'22%',s:3},{x:'19%',y:'63%',s:5},{x:'69%',y:'58%',s:3.5},{x:'49%',y:'18%',s:4.5}].map((p,i) => (
+                <div key={i} style={{ position: 'absolute', left: p.x, top: p.y, width: `${p.s}px`, height: `${p.s}px`, borderRadius: '50%', background: 'rgba(255,255,255,0.45)', animation: `floatEq ${4 + i * 1.4}s ease-in-out ${i * 0.6}s infinite` }} />
+              ))}
+            </div>
+          )}
 
           {/* Floating equations */}
           {cfg.symbols.map((sym, i) => (
             <div key={i} style={{
               position: 'absolute', top: sym.y, left: sym.x,
               fontSize: `${sym.s}px`, fontWeight: 700,
-              color: cfg.symbolColor, fontFamily: 'Georgia, serif',
+              color: 'rgba(255,255,255,0.14)', fontFamily: 'Georgia, serif',
               pointerEvents: 'none', userSelect: 'none',
               animation: `floatEq ${5 + i}s ease-in-out ${i * 0.5}s infinite`,
             }}>
@@ -603,17 +650,49 @@ export default function ConceptsPage() {
 
             {/* Orbital title area */}
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '140px', width: 'min(560px, 90vw)', marginBottom: '0.25rem' }}>
-              {/* Orbital rings (Physics only) */}
-              {activeSubject === 'Physics' || !activeSubject ? (
+              {/* Subject orbital / ring animations */}
+              {(activeSubject === 'Physics' || !activeSubject) && (
                 <>
-                  <div style={{ position: 'absolute', width: '260px', height: '95px', border: `1.5px solid ${cfg.primary}28`, borderRadius: '50%', transform: 'rotate(-20deg)', maxWidth: '88vw' }}>
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '9px', height: '9px', borderRadius: '50%', background: cfg.primary, marginLeft: '-4.5px', marginTop: '-4.5px', animation: 'orbitA 4s linear infinite', boxShadow: `0 0 7px ${cfg.primary}` }} />
+                  <div style={{ position: 'absolute', width: '260px', height: '95px', border: '1.5px solid rgba(255,255,255,0.22)', borderRadius: '50%', transform: 'rotate(-20deg)', maxWidth: '88vw' }}>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '9px', height: '9px', borderRadius: '50%', background: '#fff', marginLeft: '-4.5px', marginTop: '-4.5px', animation: 'orbitA 4s linear infinite', boxShadow: '0 0 8px rgba(255,255,255,0.9)' }} />
                   </div>
-                  <div style={{ position: 'absolute', width: '170px', height: '62px', border: `1.5px solid ${cfg.secondary}38`, borderRadius: '50%', transform: 'rotate(50deg)' }}>
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '6px', height: '6px', borderRadius: '50%', background: cfg.secondary, marginLeft: '-3px', marginTop: '-3px', animation: 'orbitB 2.8s linear infinite', boxShadow: `0 0 5px ${cfg.secondary}` }} />
+                  <div style={{ position: 'absolute', width: '170px', height: '62px', border: '1.5px solid rgba(255,255,255,0.14)', borderRadius: '50%', transform: 'rotate(50deg)' }}>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(255,255,255,0.85)', marginLeft: '-3px', marginTop: '-3px', animation: 'orbitB 2.8s linear infinite', boxShadow: '0 0 5px rgba(255,255,255,0.6)' }} />
                   </div>
                 </>
-              ) : null}
+              )}
+              {activeSubject === 'Chemistry' && (
+                <>
+                  <div style={{ position: 'absolute', width: '220px', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'rotateSlow 14s linear infinite', opacity: 0.2 }}>
+                    <svg width="220" height="220" viewBox="0 0 200 200" fill="none" stroke="#fff" strokeWidth="1.5"><polygon points="100,6 183,53 183,147 100,194 17,147 17,53"/></svg>
+                  </div>
+                  <div style={{ position: 'absolute', width: '130px', height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'rotateSlow 9s linear infinite reverse', opacity: 0.15 }}>
+                    <svg width="130" height="130" viewBox="0 0 200 200" fill="none" stroke="#fff" strokeWidth="2"><polygon points="100,15 175,57 175,143 100,185 25,143 25,57"/></svg>
+                  </div>
+                </>
+              )}
+              {activeSubject === 'Mathematics' && (
+                <>
+                  <div style={{ position: 'absolute', width: '240px', height: '96px', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'rotateSlow 20s linear infinite', opacity: 0.18 }}>
+                    <svg width="240" height="96" viewBox="0 0 240 96" fill="none" stroke="#fff" strokeWidth="1.5"><rect x="4" y="4" width="232" height="88" rx="3"/><line x1="4" y1="48" x2="236" y2="48"/><line x1="120" y1="4" x2="120" y2="92"/></svg>
+                  </div>
+                  <div style={{ position: 'absolute', animation: 'rotateSlow 13s linear infinite reverse', opacity: 0.16 }}>
+                    <svg width="110" height="110" viewBox="0 0 110 110" fill="none" stroke="#fff" strokeWidth="1.8"><rect x="8" y="8" width="94" height="94" transform="rotate(45 55 55)"/></svg>
+                  </div>
+                </>
+              )}
+              {['Biology','Botany','Zoology'].includes(activeSubject) && (
+                <div style={{ position: 'absolute', opacity: 0.18, animation: 'pulse 3.5s ease-in-out infinite' }}>
+                  <svg width="240" height="95" viewBox="0 0 240 95" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+                    <path d="M10 47 Q60 8 120 47 Q180 86 230 47"/>
+                    <path d="M10 47 Q60 86 120 47 Q180 8 230 47"/>
+                    <line x1="37" y1="17" x2="37" y2="77"/><line x1="65" y1="10" x2="65" y2="84"/>
+                    <line x1="93" y1="17" x2="93" y2="77"/><line x1="120" y1="22" x2="120" y2="72"/>
+                    <line x1="147" y1="17" x2="147" y2="77"/><line x1="175" y1="10" x2="175" y2="84"/>
+                    <line x1="203" y1="17" x2="203" y2="77"/>
+                  </svg>
+                </div>
+              )}
 
               {/* Subject title */}
               {['Biology','Botany','Zoology'].includes(activeSubject) ? (
@@ -624,8 +703,7 @@ export default function ConceptsPage() {
                 }}>
                   {(activeSubject || 'BIOLOGY').toUpperCase().split('').map((ch, i) => (
                     <span key={i} style={{
-                      background: cfg.gradient,
-                      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                      color: '#fff',
                       position: 'relative', display: 'inline-block',
                     }}>
                       {ch}
@@ -633,8 +711,8 @@ export default function ConceptsPage() {
                         <span style={{
                           position: 'absolute', top: '-0.35em', left: '50%',
                           transform: 'translateX(-50%)',
-                          fontSize: '0.32em', WebkitTextFillColor: cfg.primary,
-                          color: cfg.primary, lineHeight: 1,
+                          fontSize: '0.32em', WebkitTextFillColor: 'rgba(255,255,255,0.9)',
+                          color: 'rgba(255,255,255,0.9)', lineHeight: 1,
                         }}>🌿</span>
                       )}
                     </span>
@@ -644,8 +722,8 @@ export default function ConceptsPage() {
                 <h1 style={{
                   fontSize: 'clamp(2.4rem, 7vw, 4.8rem)', fontWeight: 900,
                   letterSpacing: '0.06em',
-                  background: cfg.gradient,
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                  color: '#fff',
+                  textShadow: '0 2px 20px rgba(0,0,0,0.15)',
                   lineHeight: 1, zIndex: 2, position: 'relative', userSelect: 'none',
                   textAlign: 'center',
                 }}>
@@ -655,14 +733,14 @@ export default function ConceptsPage() {
             </div>
 
             {/* Subtitle */}
-            <p style={{ fontSize: '14px', color: '#5a5a7a', marginBottom: '0.35rem', fontWeight: 400, letterSpacing: '0.01em', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.75)', marginBottom: '0.35rem', fontWeight: 400, letterSpacing: '0.01em', textAlign: 'center' }}>
               {cfg.subtitle}
             </p>
 
             {/* Underline accent */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '1.5rem' }}>
-              <div style={{ width: '32px', height: '3px', borderRadius: '2px', background: cfg.gradient }} />
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: cfg.primary }} />
+              <div style={{ width: '32px', height: '3px', borderRadius: '2px', background: 'rgba(255,255,255,0.5)' }} />
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)' }} />
             </div>
 
             {/* Search bar */}
@@ -743,7 +821,7 @@ export default function ConceptsPage() {
                   >
                     {getIcon(cat, cfg.primary)}
                   </div>
-                  <span style={{ fontSize: '12px', fontWeight: 500, color: '#3a3a5a', textAlign: 'center', lineHeight: 1.3, maxWidth: '80px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.88)', textAlign: 'center', lineHeight: 1.3, maxWidth: '80px' }}>
                     {cat}
                   </span>
                 </button>
@@ -762,7 +840,7 @@ export default function ConceptsPage() {
                     setTimeout(() => { busy.current = false; }, 400);
                   }} style={{
                     width: i === subjectIdx ? '28px' : '8px', height: '8px', borderRadius: '4px',
-                    background: i === subjectIdx ? cfg.primary : `${cfg.primary}40`,
+                    background: i === subjectIdx ? '#fff' : 'rgba(255,255,255,0.3)',
                     border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0,
                   }} />
                 ))}
@@ -773,25 +851,28 @@ export default function ConceptsPage() {
             <button className="scroll-btn" onClick={scrollToContent} style={{
               display: 'flex', alignItems: 'center', gap: '6px', flexDirection: 'column',
               background: 'none', border: 'none', cursor: 'pointer', padding: '8px',
-              fontSize: '13px', fontWeight: 500, color: cfg.primary, transition: 'all 0.2s',
+              fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.8)', transition: 'all 0.2s',
             }}>
               {['Biology','Botany','Zoology'].includes(activeSubject) && (
-                <svg width="22" height="28" viewBox="0 0 22 32" fill="none" stroke={cfg.primary} strokeWidth="1.8" strokeLinecap="round">
+                <svg width="22" height="28" viewBox="0 0 22 32" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.8" strokeLinecap="round">
                   <rect x="1" y="1" width="20" height="30" rx="10"/>
                   <circle cx="11" cy="9" r="3"/>
                   <line x1="11" y1="12" x2="11" y2="18"/>
                 </svg>
               )}
               Scroll to explore
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={cfg.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </button>
           </div>
         </div>
 
+        {/* Hero → content fade */}
+        <div style={{ height: '32px', background: `linear-gradient(to bottom, ${cfg.primary}18, transparent)` }} />
+
         {/* ── CONTENT ── */}
-        <div ref={contentRef} style={{ maxWidth: '1100px', margin: '0 auto', padding: '3rem 1.5rem 5rem' }}>
+        <div ref={contentRef} style={{ maxWidth: '1100px', margin: '0 auto', padding: '1.5rem 1.5rem 5rem' }}>
           {loading && <div style={{ textAlign: 'center', color: '#8888aa', padding: '4rem', fontSize: '15px' }}>Loading...</div>}
 
           {!loading && enrollmentLoaded && !enrollment && (
@@ -821,11 +902,11 @@ export default function ConceptsPage() {
             <>
               {homeData.in_progress.length > 0 && (
                 <section style={{ marginBottom: '1.5rem' }}>
-                  <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#1a1035', marginBottom: '1rem' }}>Continue Learning</h2>
+                  <h2 style={{ fontSize: '15px', fontWeight: 700, color: cfg.primary, marginBottom: '1rem', paddingLeft: '10px', borderLeft: `3px solid ${cfg.primary}` }}>Continue Learning</h2>
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     {homeData.in_progress.map(ip => (
                       <Link key={ip.boss_question_id} href={`/ladder/${ip.boss_question_id}`} style={{ textDecoration: 'none' }}>
-                        <div style={{ minWidth: '220px', background: '#fff', borderRadius: '16px', padding: '16px', cursor: 'pointer', border: `1px solid ${cfg.chipBorder}`, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}
+                        <div style={{ minWidth: '220px', background: '#fff', borderRadius: '16px', padding: '16px', cursor: 'pointer', border: `1px solid ${cfg.chipBorder}`, borderTop: `3px solid ${cfg.primary}`, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}
                           onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 8px 24px ${cfg.primary}20`; }}
                           onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'; }}>
                           <div style={{ fontSize: '11px', color: cfg.primary, fontWeight: 600, marginBottom: '4px' }}>{ip.concept_name}</div>
@@ -843,7 +924,7 @@ export default function ConceptsPage() {
 
               {homeData.needs_review.length > 0 && (
                 <section style={{ marginBottom: '1.5rem' }}>
-                  <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#1a1035', marginBottom: '1rem' }}>⚠ Needs Review</h2>
+                  <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#e67e22', marginBottom: '1rem', paddingLeft: '10px', borderLeft: '3px solid #e67e22' }}>⚠ Needs Review</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(270px,1fr))', gap: '1rem' }}>
                     {concepts.filter(c => needsReviewIds.has(c.id)).map(c => { const rev = homeData.needs_review.find(r => r.id === c.id); return <ConceptCard key={c.id} c={c} errorCount={parseInt(rev?.error_count || 0)} />; })}
                   </div>
@@ -852,7 +933,7 @@ export default function ConceptsPage() {
 
               <section>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-                  <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#1a1035' }}>{activeSubject ? `${activeSubject} Topics` : 'All Topics'}</h2>
+                  <h2 style={{ fontSize: '15px', fontWeight: 700, color: cfg.primary, paddingLeft: '10px', borderLeft: `3px solid ${cfg.primary}` }}>{activeSubject ? `${activeSubject} Topics` : 'All Topics'}</h2>
                   <span style={{ fontSize: '12px', color: cfg.primary, fontWeight: 700, background: cfg.chipBg, padding: '2px 10px', borderRadius: '9999px' }}>{concepts.length}</span>
                 </div>
                 {concepts.length === 0 ? (

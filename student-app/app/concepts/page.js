@@ -437,6 +437,7 @@ export default function ConceptsPage() {
   };
 
   const loadConceptsForSubject = async (subject) => {
+    if (typeof window !== 'undefined') localStorage.setItem('activeSubject', subject);
     const data = await apiCall(`/concepts?subject=${encodeURIComponent(subject)}`);
     if (data.success) setConcepts(data.concepts || []);
   };

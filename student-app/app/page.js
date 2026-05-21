@@ -179,7 +179,7 @@ export default function LandingPage() {
                 <button
                   className="btn-primary"
                   style={{ width: '100%', padding: '10px', fontSize: '14px', fontWeight: 700 }}
-                  onClick={() => router.push(`/login?course_id=${course.id}`)}
+                  onClick={() => router.push(`/enroll?course_id=${course.id}`)}
                 >
                   Get Started
                 </button>

@@ -578,9 +578,9 @@ export default function ConceptsPage() {
 
         {/* ── HERO ── */}
         <div key={activeSubject} style={{
-          minHeight: '100vh', position: 'relative', overflow: 'hidden',
+          position: 'relative', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', paddingTop: '90px', paddingBottom: '60px',
+          paddingTop: '74px', paddingBottom: '28px',
         }}>
 
           {/* Background lab/subject decorations */}
@@ -602,15 +602,15 @@ export default function ConceptsPage() {
           <div className="hero-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
 
             {/* Orbital title area */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', width: 'min(600px, 90vw)', marginBottom: '0.5rem' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '140px', width: 'min(560px, 90vw)', marginBottom: '0.25rem' }}>
               {/* Orbital rings (Physics only) */}
               {activeSubject === 'Physics' || !activeSubject ? (
                 <>
-                  <div style={{ position: 'absolute', width: '360px', height: '130px', border: `1.5px solid ${cfg.primary}28`, borderRadius: '50%', transform: 'rotate(-20deg)', maxWidth: '90vw' }}>
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '10px', height: '10px', borderRadius: '50%', background: cfg.primary, marginLeft: '-5px', marginTop: '-5px', animation: 'orbitA 4s linear infinite', boxShadow: `0 0 8px ${cfg.primary}` }} />
+                  <div style={{ position: 'absolute', width: '260px', height: '95px', border: `1.5px solid ${cfg.primary}28`, borderRadius: '50%', transform: 'rotate(-20deg)', maxWidth: '88vw' }}>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '9px', height: '9px', borderRadius: '50%', background: cfg.primary, marginLeft: '-4.5px', marginTop: '-4.5px', animation: 'orbitA 4s linear infinite', boxShadow: `0 0 7px ${cfg.primary}` }} />
                   </div>
-                  <div style={{ position: 'absolute', width: '230px', height: '85px', border: `1.5px solid ${cfg.secondary}38`, borderRadius: '50%', transform: 'rotate(50deg)' }}>
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '7px', height: '7px', borderRadius: '50%', background: cfg.secondary, marginLeft: '-3.5px', marginTop: '-3.5px', animation: 'orbitB 2.8s linear infinite', boxShadow: `0 0 6px ${cfg.secondary}` }} />
+                  <div style={{ position: 'absolute', width: '170px', height: '62px', border: `1.5px solid ${cfg.secondary}38`, borderRadius: '50%', transform: 'rotate(50deg)' }}>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '6px', height: '6px', borderRadius: '50%', background: cfg.secondary, marginLeft: '-3px', marginTop: '-3px', animation: 'orbitB 2.8s linear infinite', boxShadow: `0 0 5px ${cfg.secondary}` }} />
                   </div>
                 </>
               ) : null}
@@ -618,7 +618,7 @@ export default function ConceptsPage() {
               {/* Subject title */}
               {['Biology','Botany','Zoology'].includes(activeSubject) ? (
                 <h1 style={{
-                  fontSize: 'clamp(3rem, 9vw, 5.8rem)', fontWeight: 900,
+                  fontSize: 'clamp(2.4rem, 7vw, 4.8rem)', fontWeight: 900,
                   letterSpacing: '0.06em', lineHeight: 1, zIndex: 2, position: 'relative',
                   userSelect: 'none', textAlign: 'center', display: 'flex', alignItems: 'flex-start',
                 }}>
@@ -642,7 +642,7 @@ export default function ConceptsPage() {
                 </h1>
               ) : (
                 <h1 style={{
-                  fontSize: 'clamp(3rem, 9vw, 5.8rem)', fontWeight: 900,
+                  fontSize: 'clamp(2.4rem, 7vw, 4.8rem)', fontWeight: 900,
                   letterSpacing: '0.06em',
                   background: cfg.gradient,
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
@@ -655,24 +655,24 @@ export default function ConceptsPage() {
             </div>
 
             {/* Subtitle */}
-            <p style={{ fontSize: '16px', color: '#5a5a7a', marginBottom: '0.5rem', fontWeight: 400, letterSpacing: '0.01em', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: '#5a5a7a', marginBottom: '0.35rem', fontWeight: 400, letterSpacing: '0.01em', textAlign: 'center' }}>
               {cfg.subtitle}
             </p>
 
             {/* Underline accent */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '1.5rem' }}>
               <div style={{ width: '32px', height: '3px', borderRadius: '2px', background: cfg.gradient }} />
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: cfg.primary }} />
             </div>
 
             {/* Search bar */}
-            <div style={{ position: 'relative', width: '100%', maxWidth: '600px', padding: '0 1.5rem', marginBottom: '2.5rem' }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: '580px', padding: '0 1.5rem', marginBottom: '1.5rem' }}>
               <div style={{
                 display: 'flex', alignItems: 'center', gap: '12px',
                 background: '#fff',
                 border: focused ? `2px solid ${cfg.primary}` : '2px solid rgba(0,0,0,0.07)',
                 borderRadius: focused && query ? '26px 26px 0 0' : '9999px',
-                padding: '15px 22px',
+                padding: '12px 20px',
                 boxShadow: focused ? `0 0 0 4px ${cfg.primary}18, 0 6px 24px rgba(0,0,0,0.10)` : '0 4px 20px rgba(0,0,0,0.09)',
                 transition: 'all 0.25s',
               }}>
@@ -724,7 +724,7 @@ export default function ConceptsPage() {
             </div>
 
             {/* Category chips — circular icons */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', justifyContent: 'center', maxWidth: '640px', padding: '0 1.5rem', marginBottom: '3rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'center', maxWidth: '640px', padding: '0 1.5rem', marginBottom: '1.5rem' }}>
               {cfg.categories.map((cat) => (
                 <button key={cat} className="cat-chip" onClick={() => setQuery(cat)} style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
@@ -732,7 +732,7 @@ export default function ConceptsPage() {
                   transition: 'transform 0.2s, box-shadow 0.2s',
                 }}>
                   <div style={{
-                    width: '72px', height: '72px', borderRadius: '50%',
+                    width: '58px', height: '58px', borderRadius: '50%',
                     background: '#fff', border: `1.5px solid ${cfg.chipBorder}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     boxShadow: '0 2px 10px rgba(0,0,0,0.07)',
@@ -752,7 +752,7 @@ export default function ConceptsPage() {
 
             {/* Subject dots */}
             {subjects.length > 1 && (
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '2.5rem' }}>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '1rem' }}>
                 {subjects.map((_, i) => (
                   <button key={i} onClick={() => {
                     if (i === subjectIdx || busy.current) return;
@@ -820,7 +820,7 @@ export default function ConceptsPage() {
           {!loading && !query && (
             <>
               {homeData.in_progress.length > 0 && (
-                <section style={{ marginBottom: '2.5rem' }}>
+                <section style={{ marginBottom: '1.5rem' }}>
                   <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#1a1035', marginBottom: '1rem' }}>Continue Learning</h2>
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     {homeData.in_progress.map(ip => (
@@ -842,7 +842,7 @@ export default function ConceptsPage() {
               )}
 
               {homeData.needs_review.length > 0 && (
-                <section style={{ marginBottom: '2.5rem' }}>
+                <section style={{ marginBottom: '1.5rem' }}>
                   <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#1a1035', marginBottom: '1rem' }}>⚠ Needs Review</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(270px,1fr))', gap: '1rem' }}>
                     {concepts.filter(c => needsReviewIds.has(c.id)).map(c => { const rev = homeData.needs_review.find(r => r.id === c.id); return <ConceptCard key={c.id} c={c} errorCount={parseInt(rev?.error_count || 0)} />; })}

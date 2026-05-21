@@ -703,7 +703,7 @@ const EXAM_COLORS = { JEE: '#6c5ce7', NEET: '#22c55e' };
 async function loadCourses() {
   const grid = document.getElementById('courses-grid');
   try {
-    const res = await fetch('https://eme-backend-tiv9.onrender.com/api/student/courses');
+    const res = await fetch('https://eme-backend-tiv9.onrender.com/api/courses');
     const data = await res.json();
     const courses = data.courses || [];
     if (!courses.length) { grid.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;grid-column:1/-1">No courses available yet.</div>'; return; }

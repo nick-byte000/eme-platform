@@ -39,6 +39,16 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/physics-library', physicsLibraryRoutes);
 app.use('/api/enrollment', enrollmentRoutes);
 
+// Public courses endpoint for landing page
+app.get('/api/courses', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, name, class, exam_type, subjects, price, original_price, description, features FROM courses WHERE is_active = true ORDER BY exam_type, class');
+    res.json({ success: true, courses: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Practice questions — student facing
 app.get('/api/practice/:concept_id', async (req, res) => {
   try {

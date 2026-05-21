@@ -8,16 +8,13 @@
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     :root {
-      --bg:#f8f9ff; --white:#ffffff;
-      --navy:#0d1b3e; --navy2:#1a2a52;
-      --purple:#5c35d6; --purple-l:#7c5ce7; --purple-bg:#f0ebff;
-      --yellow:#f5b800; --yellow-bg:#fff8e1;
-      --blue:#1a73e8; --blue-bg:#e8f4fd;
-      --green:#0f9d58; --green-bg:#e6f4ea;
-      --orange:#f4511e; --orange-bg:#fce8e6;
-      --text:#1a1a2e; --muted:#666; --muted2:#888;
-      --border:#e8eaf0; --border2:#d0d5e8;
-      --shadow:0 2px 16px rgba(0,0,0,0.07);
+      --bg:#080c18; --bg2:#0d1225; --bg3:#111828;
+      --card:#0f1628; --card2:#141c30;
+      --purple:#6c5ce7; --purple-l:#8b7ff5; --purple-d:#4a3eb0;
+      --yellow:#f5c842; --yellow-d:#e0b030;
+      --text:#ffffff; --muted:#8899b4; --muted2:#b0b8d4;
+      --border:rgba(255,255,255,0.07); --border2:rgba(108,92,231,0.25);
+      --green:#22c55e; --red:#ef4444;
     }
     html { scroll-behavior:smooth; }
     body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
@@ -26,236 +23,353 @@
     nav {
       position:fixed; top:0; left:0; right:0; z-index:1000;
       display:flex; align-items:center; justify-content:space-between;
-      padding:0 4%; height:64px;
-      background:var(--white); border-bottom:1px solid var(--border);
-      box-shadow:0 2px 12px rgba(0,0,0,0.06);
+      padding:0 5%; height:68px;
+      background:rgba(8,12,24,0.92); backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
     }
-    .logo { display:flex; align-items:center; gap:2px; text-decoration:none; }
-    .logo-text { font-size:22px; font-weight:900; color:var(--navy); letter-spacing:-0.5px; line-height:1; }
-    .logo-text .inf { color:var(--yellow); font-size:26px; }
-    .logo-sub { font-size:8px; font-weight:700; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; display:block; margin-top:1px; }
-    .logo-wrap { display:flex; flex-direction:column; }
+    .logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .logo-icon {
+      width:42px; height:42px; border-radius:12px;
+      background:linear-gradient(135deg,var(--purple),var(--purple-l));
+      display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:900; color:#fff; letter-spacing:-0.5px;
+      position:relative; overflow:hidden;
+    }
+    .logo-icon::after {
+      content:'∞';
+      position:absolute; font-size:22px; font-weight:900;
+      color:rgba(255,255,255,0.15); top:50%; left:50%;
+      transform:translate(-50%,-50%);
+    }
+    .logo-text-wrap { display:flex; flex-direction:column; }
+    .logo-name { font-size:18px; font-weight:800; color:#fff; letter-spacing:-0.3px; line-height:1.1; }
+    .logo-name span { color:var(--yellow); }
+    .logo-sub { font-size:8.5px; font-weight:600; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; }
     .nav-links { display:flex; gap:2px; align-items:center; }
-    .nav-links a { color:var(--muted); text-decoration:none; font-size:13.5px; font-weight:500; padding:6px 12px; border-radius:7px; transition:all .2s; }
-    .nav-links a:hover { color:var(--navy); background:var(--bg); }
+    .nav-links a {
+      color:var(--muted2); text-decoration:none; font-size:13.5px; font-weight:500;
+      padding:7px 13px; border-radius:8px; transition:all .2s; white-space:nowrap;
+    }
+    .nav-links a:hover, .nav-links a.active { color:#fff; }
+    .nav-links a.active { position:relative; }
+    .nav-links a.active::after {
+      content:''; position:absolute; bottom:-22px; left:50%; transform:translateX(-50%);
+      width:28px; height:2px; background:var(--yellow); border-radius:2px;
+    }
     .nav-actions { display:flex; gap:10px; align-items:center; }
-    .nav-search { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:8px; cursor:pointer; color:var(--muted); border:1px solid var(--border); transition:all .2s; font-size:15px; }
-    .nav-search:hover { background:var(--bg); color:var(--navy); }
-    .btn-login { color:var(--navy); text-decoration:none; font-size:13.5px; font-weight:600; padding:8px 20px; border-radius:9px; border:1.5px solid var(--border2); transition:all .2s; }
-    .btn-login:hover { border-color:var(--purple); color:var(--purple); }
-    .btn-getstarted { background:var(--yellow); color:var(--navy); text-decoration:none; font-size:13.5px; font-weight:700; padding:9px 22px; border-radius:9px; transition:all .25s; }
-    .btn-getstarted:hover { background:#e0a800; transform:translateY(-1px); box-shadow:0 4px 14px rgba(245,184,0,0.35); }
+    .btn-login {
+      color:#fff; text-decoration:none; font-size:13.5px; font-weight:600;
+      padding:8px 20px; border-radius:9px; border:1px solid var(--border2);
+      transition:all .2s; background:transparent;
+    }
+    .btn-login:hover { background:rgba(108,92,231,0.1); border-color:var(--purple); }
+    .btn-getstarted {
+      background:var(--yellow); color:#1a1200; text-decoration:none;
+      font-size:13.5px; font-weight:700; padding:9px 22px; border-radius:9px;
+      transition:all .25s; white-space:nowrap;
+    }
+    .btn-getstarted:hover { background:var(--yellow-d); transform:translateY(-1px); }
 
     /* ── HERO ── */
-    .hero { padding:88px 4% 50px; display:grid; grid-template-columns:1fr 1.1fr 0.85fr; gap:32px; align-items:center; min-height:92vh; }
-    .hero-badge { display:inline-flex; align-items:center; gap:7px; background:var(--blue-bg); color:var(--blue); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; margin-bottom:20px; }
-    .hero-badge::before { content:'🎓'; }
-    .hero h1 { font-size:clamp(2.2rem,3.8vw,3.2rem); font-weight:900; line-height:1.1; margin-bottom:16px; letter-spacing:-0.02em; }
-    .hero h1 .grad { background:linear-gradient(90deg,var(--purple),var(--blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; display:block; }
-    .hero-sub { font-size:15px; color:var(--muted); line-height:1.8; margin-bottom:28px; max-width:420px; }
-    .hero-btns { display:flex; gap:12px; margin-bottom:26px; flex-wrap:wrap; }
-    .btn-dark { background:var(--navy); color:#fff; padding:12px 26px; border-radius:9px; font-size:14.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:all .25s; }
-    .btn-dark:hover { background:var(--navy2); transform:translateY(-2px); box-shadow:0 6px 20px rgba(13,27,62,0.3); }
-    .btn-outline-dark { background:#fff; color:var(--navy); padding:12px 22px; border-radius:9px; font-size:14.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:9px; border:1.5px solid var(--border2); transition:all .25s; }
-    .btn-outline-dark:hover { border-color:var(--navy); }
-    .play-btn { width:28px; height:28px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:10px; border:1px solid var(--border); }
-    .hero-pills { display:flex; gap:18px; flex-wrap:wrap; }
-    .hero-pill { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); font-weight:500; }
-    .hero-pill::before { content:''; width:16px; height:16px; border-radius:4px; background:var(--purple-bg); display:flex; align-items:center; justify-content:center; font-size:9px; flex-shrink:0; }
+    .hero {
+      min-height:100vh; display:flex; align-items:center;
+      padding:90px 5% 60px; gap:50px;
+      background:radial-gradient(ellipse 80% 60% at 10% 50%,rgba(108,92,231,0.1) 0%,transparent 60%),
+                 radial-gradient(ellipse 60% 50% at 90% 30%,rgba(108,92,231,0.07) 0%,transparent 60%);
+      position:relative; overflow:hidden;
+    }
+    .hero::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse 40% 40% at 70% 60%,rgba(245,200,66,0.04) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .hero-left { flex:1; max-width:560px; z-index:2; }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:7px;
+      background:rgba(108,92,231,0.12); border:1px solid rgba(108,92,231,0.3);
+      color:var(--purple-l); padding:6px 14px; border-radius:20px;
+      font-size:12px; font-weight:600; margin-bottom:24px;
+    }
+    .hero-badge::before { content:'★'; color:var(--yellow); }
+    .hero h1 {
+      font-size:clamp(2.4rem,4.5vw,3.6rem); font-weight:900; line-height:1.1;
+      margin-bottom:20px; letter-spacing:-0.02em;
+    }
+    .hero h1 .yellow { color:var(--yellow); }
+    .hero h1 .purple { color:var(--purple-l); }
+    .hero-sub { font-size:15.5px; color:var(--muted2); line-height:1.85; margin-bottom:34px; max-width:460px; }
+    .hero-btns { display:flex; gap:13px; flex-wrap:wrap; margin-bottom:38px; }
+    .btn-primary {
+      background:var(--yellow); color:#1a1200;
+      padding:13px 28px; border-radius:10px; font-size:15px; font-weight:700;
+      text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+      transition:all .25s; box-shadow:0 4px 20px rgba(245,200,66,0.3);
+    }
+    .btn-primary:hover { background:var(--yellow-d); transform:translateY(-2px); box-shadow:0 8px 28px rgba(245,200,66,0.35); }
+    .btn-outline {
+      background:transparent; color:#fff;
+      padding:13px 26px; border-radius:10px; font-size:15px; font-weight:600;
+      text-decoration:none; display:inline-flex; align-items:center; gap:9px;
+      border:1px solid rgba(255,255,255,0.15); transition:all .25s;
+    }
+    .btn-outline:hover { border-color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.05); }
+    .play-icon {
+      width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.15);
+      display:flex; align-items:center; justify-content:center; font-size:10px;
+    }
+    .hero-social { display:flex; align-items:center; gap:14px; }
+    .avatars { display:flex; }
+    .avatars span {
+      width:34px; height:34px; border-radius:50%; border:2px solid var(--bg);
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:800; margin-left:-9px; color:#fff;
+    }
+    .avatars span:first-child { margin-left:0; }
+    .social-txt { font-size:13.5px; color:var(--muted2); line-height:1.55; }
+    .social-txt strong { color:#fff; }
 
-    /* ── LEARNING CYCLE ── */
-    .cycle-wrap { position:relative; width:380px; height:370px; margin:0 auto; }
-    .cycle-center {
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      text-align:center; z-index:2;
+    /* ── HERO RIGHT (learning flow) ── */
+    .hero-right { flex:1; max-width:580px; z-index:2; }
+    .flow-box {
+      background:var(--card); border:1px solid var(--border2);
+      border-radius:20px; padding:28px; position:relative;
+      box-shadow:0 20px 60px rgba(0,0,0,0.4);
     }
-    .cycle-center-label { font-size:12px; color:var(--muted); font-weight:500; }
-    .cycle-logo-text { font-size:22px; font-weight:900; color:var(--navy); line-height:1; }
-    .cycle-logo-text .inf { color:var(--yellow); }
-    .cycle-cycle { font-size:12px; color:var(--muted); font-weight:500; }
-    .cycle-bg {
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      width:150px; height:150px; border-radius:50%;
-      background:#fff; border:2px solid var(--border);
-      box-shadow:var(--shadow); z-index:1;
+    .flow-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; }
+    .flow-title { font-size:15px; font-weight:700; }
+    .flow-title span { color:var(--purple-l); }
+    .flow-note { font-size:11px; color:var(--muted); max-width:120px; text-align:right; line-height:1.5; font-style:italic; }
+    .flow-steps { display:flex; align-items:center; gap:6px; margin-bottom:22px; flex-wrap:wrap; }
+    .flow-step {
+      flex:1; min-width:85px; background:var(--bg2);
+      border:1px solid var(--border); border-radius:13px; padding:13px 10px;
+      text-align:center; transition:all .2s; position:relative;
     }
-    .cycle-ring {
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      width:280px; height:280px; border-radius:50%;
-      border:2px dashed var(--border2); z-index:0;
+    .flow-step:hover { border-color:var(--border2); transform:translateY(-2px); }
+    .flow-step-num {
+      position:absolute; top:-9px; left:50%; transform:translateX(-50%);
+      background:var(--purple); color:#fff; width:18px; height:18px;
+      border-radius:50%; font-size:10px; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
     }
-    .cycle-step {
-      position:absolute; z-index:3;
-      background:#fff; border-radius:12px; padding:10px 12px;
-      box-shadow:0 3px 14px rgba(0,0,0,0.1); width:110px;
-      border:1.5px solid var(--border);
+    .flow-icon { font-size:22px; margin-bottom:7px; }
+    .flow-step-name { font-size:11px; font-weight:700; color:#fff; margin-bottom:3px; }
+    .flow-step-desc { font-size:9.5px; color:var(--muted); line-height:1.4; }
+    .flow-arrow { color:var(--purple-l); font-size:16px; flex-shrink:0; }
+    .flow-cards { display:grid; grid-template-columns:1fr 1fr 1fr; gap:11px; }
+    .flow-card {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:12px; padding:13px;
     }
-    .cs-num {
-      width:24px; height:24px; border-radius:50%; color:#fff;
-      font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center;
-      margin-bottom:5px;
-    }
-    .cs-name { font-size:12px; font-weight:700; color:var(--navy); margin-bottom:2px; }
-    .cs-desc { font-size:10px; color:var(--muted); line-height:1.4; }
-    .cs-icons { display:flex; gap:4px; margin-top:5px; }
-    .cs-icon { width:20px; height:20px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:10px; }
-    /* Step positions (pentagon, r=130px, center=190,185) */
-    /* 1: top (270°) → 190,55 → left:135, top:0 */
-    .cs1 { top:0; left:135px; }
-    /* 2: top-right (342°) → 317,109 → left:262, top:54 */
-    .cs2 { top:54px; right:0; }
-    /* 3: bottom-right (54°) → 266,309 → left:211, bottom:5 */
-    .cs3 { bottom:5px; right:15px; }
-    /* 4: bottom-left (126°) → 114,309 → left:59, bottom:5 */
-    .cs4 { bottom:5px; left:15px; }
-    /* 5: top-left (198°) → 63,109 → left:8, top:54 */
-    .cs5 { top:54px; left:0; }
-
-    .cycle-arrows { position:absolute; inset:0; z-index:1; pointer-events:none; }
-
-    /* ── HERO STATS CARD ── */
-    .hero-stats-card {
-      background:var(--navy); border-radius:18px; padding:26px 22px;
-      color:#fff; box-shadow:0 12px 40px rgba(13,27,62,0.25);
-    }
-    .hsc-title { font-size:16px; font-weight:800; margin-bottom:22px; }
-    .hsc-row { display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
-    .hsc-row:last-child { border-bottom:none; }
-    .hsc-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
-    .hsc-num { font-size:20px; font-weight:900; color:#fff; }
-    .hsc-label { font-size:12px; color:rgba(255,255,255,0.6); margin-top:1px; }
+    .fc-label { font-size:10px; font-weight:700; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em; }
+    .fc-subject { background:rgba(108,92,231,0.15); color:var(--purple-l); font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px; display:inline-block; margin-bottom:7px; }
+    .fc-text { font-size:10px; color:var(--muted2); line-height:1.55; margin-bottom:8px; }
+    .fc-link { font-size:10px; color:var(--purple-l); font-weight:600; text-decoration:none; }
+    .progress-ring { display:flex; align-items:center; gap:10px; }
+    .ring-wrap { position:relative; width:52px; height:52px; flex-shrink:0; }
+    .ring-wrap svg { transform:rotate(-90deg); }
+    .ring-pct { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; }
+    .fc-stats { display:flex; flex-direction:column; gap:4px; }
+    .fc-stat-row { display:flex; justify-content:space-between; font-size:10px; }
+    .fc-stat-label { color:var(--muted); }
+    .fc-stat-val { color:#fff; font-weight:700; }
+    .streak-val { color:var(--yellow); display:flex; align-items:center; gap:3px; }
 
     /* ── SUBJECTS ── */
-    .subjects-bar { background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:16px 4%; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-    .subj-label { font-size:17px; font-weight:800; color:var(--navy); line-height:1.2; margin-right:8px; }
-    .subj-label span { color:var(--purple); display:block; }
-    .subj-arrow { color:var(--purple); font-size:20px; margin-right:4px; }
-    .subj-tabs { display:flex; gap:10px; flex:1; flex-wrap:wrap; }
-    .subj-tab { display:flex; align-items:center; gap:10px; padding:11px 18px; border-radius:10px; cursor:pointer; border:1.5px solid var(--border); background:#fff; font-size:13.5px; font-weight:600; color:var(--navy); transition:all .2s; text-decoration:none; }
-    .subj-tab:hover { border-color:var(--purple); background:var(--purple-bg); color:var(--purple); }
-    .subj-tab-info { display:flex; flex-direction:column; }
-    .subj-tab-name { font-size:14px; font-weight:700; }
-    .subj-tab-sub { font-size:10.5px; color:var(--muted); font-weight:400; }
-    .subj-icon { font-size:22px; }
-    .subj-search { display:flex; align-items:center; margin-left:auto; }
-    .subj-search input { background:#f4f5f7; border:1.5px solid var(--border); border-right:none; color:var(--text); font-size:13px; padding:10px 16px 10px 36px; border-radius:9px 0 0 9px; outline:none; width:220px; font-family:'Inter',sans-serif; }
-    .subj-search-wrap { position:relative; }
-    .subj-search-wrap::before { content:'🔍'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:12px; z-index:1; }
-    .subj-search input::placeholder { color:var(--muted2); }
-    .subj-search button { background:var(--navy); color:#fff; border:none; cursor:pointer; font-size:13px; font-weight:700; padding:10px 20px; border-radius:0 9px 9px 0; transition:background .2s; }
-    .subj-search button:hover { background:var(--navy2); }
+    .subjects-bar {
+      background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+      padding:18px 5%; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    }
+    .subjects-label { font-size:16px; font-weight:800; margin-right:6px; }
+    .subjects-label span { color:var(--purple-l); display:block; font-size:16px; }
+    .subj-tabs { display:flex; gap:8px; flex:1; flex-wrap:wrap; }
+    .subj-tab {
+      display:flex; align-items:center; gap:8px;
+      padding:10px 18px; border-radius:10px; cursor:pointer;
+      border:1px solid var(--border); background:var(--card);
+      font-size:13.5px; font-weight:600; color:var(--muted2);
+      transition:all .2s; text-decoration:none;
+    }
+    .subj-tab:hover { color:#fff; border-color:var(--border2); background:rgba(108,92,231,0.08); }
+    .subj-icon { font-size:18px; }
+    .subj-search { display:flex; align-items:center; gap:0; margin-left:auto; }
+    .subj-search input {
+      background:var(--card); border:1px solid var(--border); border-right:none;
+      color:#fff; font-size:13px; padding:10px 16px; border-radius:9px 0 0 9px;
+      outline:none; width:200px; font-family:'Inter',sans-serif;
+    }
+    .subj-search input::placeholder { color:var(--muted); }
+    .subj-search button {
+      background:var(--purple); color:#fff; border:none; cursor:pointer;
+      font-size:13px; font-weight:700; padding:10px 20px;
+      border-radius:0 9px 9px 0; transition:background .2s;
+    }
+    .subj-search button:hover { background:var(--purple-d); }
 
-    /* ── WHY STUDENTS ── */
-    .why-sec { padding:60px 4%; }
-    .why-title { text-align:center; font-size:clamp(1.6rem,2.5vw,2.1rem); font-weight:800; margin-bottom:36px; }
-    .why-title span { color:var(--purple); }
-    .why-title .inf { color:var(--yellow); }
-    .why-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
-    .why-card { background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:22px 18px; transition:all .3s; }
-    .why-card:hover { border-color:var(--purple); transform:translateY(-3px); box-shadow:0 8px 28px rgba(92,53,214,0.1); }
-    .why-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px; }
-    .why-card h3 { font-size:14px; font-weight:700; margin-bottom:8px; color:var(--navy); }
-    .why-card p { font-size:12.5px; color:var(--muted); line-height:1.7; }
+    /* ── FEATURES ── */
+    .features { padding:70px 5%; }
+    .feat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .feat {
+      background:var(--card); padding:28px 24px; transition:all .3s;
+    }
+    .feat:hover { background:var(--card2); }
+    .feat-ico { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:16px; }
+    .ico-p { background:rgba(108,92,231,0.15); }
+    .ico-o { background:rgba(245,200,66,0.15); }
+    .ico-g { background:rgba(34,197,94,0.15); }
+    .ico-b { background:rgba(56,189,248,0.15); }
+    .feat h3 { font-size:15px; font-weight:700; margin-bottom:9px; }
+    .feat p { font-size:13px; color:var(--muted); line-height:1.75; }
 
-    /* ── DARK BANNER ── */
-    .dark-banner { background:var(--navy); padding:40px 4%; display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:28px; border-radius:0; }
-    .db-card { background:rgba(255,255,255,0.05); border-radius:16px; padding:28px; border:1px solid rgba(255,255,255,0.1); }
-    .db-title { font-size:16px; font-weight:800; color:#fff; margin-bottom:20px; }
-    .topper-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .topper-card { background:rgba(255,255,255,0.07); border-radius:10px; padding:11px; display:flex; align-items:center; gap:10px; }
-    .topper-avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--purple-l),var(--blue)); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; flex-shrink:0; }
-    .topper-air { font-size:14px; font-weight:900; color:var(--yellow); }
-    .topper-exam { font-size:10px; color:rgba(255,255,255,0.6); }
-    .topper-more { color:rgba(255,255,255,0.5); font-size:12px; margin-top:10px; }
-    .test-list { display:flex; flex-direction:column; gap:10px; }
-    .test-item { display:flex; align-items:center; gap:10px; font-size:13.5px; color:rgba(255,255,255,0.85); }
-    .test-item::before { content:'✓'; width:20px; height:20px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; font-weight:700; flex-shrink:0; }
-    .test-trophy { font-size:60px; text-align:center; margin-top:16px; }
-    .mission-sub { font-size:13px; color:rgba(255,255,255,0.6); line-height:1.8; margin-bottom:20px; }
-    .mission-points { display:flex; flex-direction:column; gap:7px; margin-bottom:22px; }
-    .mission-pt { font-size:13px; color:rgba(255,255,255,0.8); display:flex; align-items:center; gap:8px; }
-    .mission-pt::before { content:'✦'; color:var(--yellow); font-size:10px; }
-    .btn-yellow { background:var(--yellow); color:var(--navy); text-decoration:none; font-size:14px; font-weight:700; padding:12px 24px; border-radius:9px; display:inline-flex; align-items:center; gap:8px; transition:all .25s; }
-    .btn-yellow:hover { background:#e0a800; transform:translateY(-1px); }
-    .mission-rocket { font-size:80px; text-align:right; margin-top:-10px; }
+    /* ── STATS ── */
+    .stats-bar {
+      background:var(--purple-d); padding:28px 5%;
+      display:flex; justify-content:space-around; flex-wrap:wrap; gap:20px;
+    }
+    .stat { text-align:center; display:flex; align-items:center; gap:13px; }
+    .stat-icon { font-size:28px; }
+    .stat-n { font-size:1.8rem; font-weight:900; color:#fff; }
+    .stat-l { font-size:12px; color:rgba(255,255,255,0.75); font-weight:500; }
 
-    /* ── BOTTOM FEATURES ── */
-    .bottom-feats { background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:22px 4%; display:flex; justify-content:space-around; flex-wrap:wrap; gap:14px; }
-    .bf-item { display:flex; align-items:center; gap:10px; flex:1; min-width:150px; }
-    .bf-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; background:var(--bg); border:1px solid var(--border); }
-    .bf-name { font-size:12.5px; font-weight:600; color:var(--navy); line-height:1.4; }
+    /* ── TRUSTED ── */
+    .trusted { background:var(--bg2); padding:28px 5%; text-align:center; }
+    .trusted p { font-size:13px; color:var(--muted); margin-bottom:18px; }
+    .trust-logos { display:flex; justify-content:center; align-items:center; gap:28px; flex-wrap:wrap; }
+    .trust-logo {
+      background:var(--card); border:1px solid var(--border);
+      padding:9px 20px; border-radius:9px;
+      font-size:12.5px; font-weight:700; color:var(--muted2);
+      transition:all .2s;
+    }
+    .trust-logo:hover { color:#fff; border-color:var(--border2); }
 
     /* ── HOW IT WORKS ── */
-    .hiw { padding:72px 4%; background:var(--bg); }
-    .sec-hdr { text-align:center; margin-bottom:50px; }
-    .sec-tag { display:inline-block; background:var(--purple-bg); color:var(--purple); padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:12px; }
-    .sec-hdr h2 { font-size:clamp(1.8rem,2.8vw,2.4rem); font-weight:800; margin-bottom:12px; }
+    .hiw { padding:80px 5%; }
+    .sec-hdr { text-align:center; margin-bottom:56px; }
+    .sec-tag {
+      display:inline-block; background:rgba(108,92,231,0.12);
+      border:1px solid rgba(108,92,231,0.3); color:var(--purple-l);
+      padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700;
+      letter-spacing:0.08em; text-transform:uppercase; margin-bottom:13px;
+    }
+    .sec-hdr h2 { font-size:clamp(1.8rem,3vw,2.5rem); font-weight:800; margin-bottom:12px; }
     .sec-hdr p { font-size:15px; color:var(--muted); max-width:500px; margin:0 auto; line-height:1.8; }
     .hiw-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
-    .hiw-card { background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:28px 22px; text-align:center; transition:all .3s; }
-    .hiw-card:hover { border-color:var(--purple); transform:translateY(-4px); box-shadow:0 10px 30px rgba(92,53,214,0.1); }
-    .hiw-num { width:56px; height:56px; border-radius:50%; margin:0 auto 18px; background:linear-gradient(135deg,var(--purple),var(--purple-l)); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:900; color:#fff; box-shadow:0 0 20px rgba(92,53,214,0.3); }
-    .hiw-card h3 { font-size:15px; font-weight:700; margin-bottom:9px; color:var(--navy); }
+    .hiw-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:28px 22px; text-align:center; position:relative;
+      transition:all .3s;
+    }
+    .hiw-card:hover { border-color:var(--border2); transform:translateY(-4px); }
+    .hiw-num {
+      width:56px; height:56px; border-radius:50%; margin:0 auto 18px;
+      background:linear-gradient(135deg,var(--purple),var(--purple-l));
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; font-weight:900; color:#fff;
+      box-shadow:0 0 24px rgba(108,92,231,0.35);
+    }
+    .hiw-card h3 { font-size:15px; font-weight:700; margin-bottom:9px; }
     .hiw-card p { font-size:13px; color:var(--muted); line-height:1.75; }
 
+    /* ── LADDER PREVIEW ── */
+    .ladder-sec { background:var(--bg2); padding:80px 5%; }
+    .ladder-wrap { display:flex; gap:60px; align-items:center; flex-wrap:wrap; }
+    .ladder-l { flex:1; min-width:280px; }
+    .ladder-l h2 { font-size:clamp(1.8rem,3vw,2.5rem); font-weight:800; margin-bottom:14px; }
+    .ladder-l p { font-size:15px; color:var(--muted); line-height:1.85; margin-bottom:28px; }
+    .ladder-r { flex:1; min-width:300px; }
+    .ladder-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:18px; padding:24px;
+    }
+    .lc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    .lc-title { font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
+    .xp-badge { background:rgba(245,200,66,0.13); color:var(--yellow); border:1px solid rgba(245,200,66,0.28); padding:3px 10px; border-radius:10px; font-size:11.5px; font-weight:700; }
+    .step-row { display:flex; align-items:center; gap:12px; padding:10px 13px; border-radius:10px; margin-bottom:6px; }
+    .step-row.done { background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2); }
+    .step-row.active { background:rgba(108,92,231,0.1); border:1px solid rgba(108,92,231,0.35); box-shadow:0 0 16px rgba(108,92,231,0.1); }
+    .step-row.locked { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); opacity:.45; }
+    .step-dot { width:30px; height:30px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+    .step-dot.done { background:var(--green); color:#fff; }
+    .step-dot.active { background:var(--purple); color:#fff; box-shadow:0 0 10px rgba(108,92,231,0.5); }
+    .step-dot.locked { background:rgba(255,255,255,0.07); color:var(--muted); }
+    .step-info { flex:1; }
+    .step-name { font-size:13px; font-weight:600; }
+    .step-meta { font-size:11px; color:var(--muted); margin-top:1px; }
+    .step-pts { font-size:12px; font-weight:700; color:var(--yellow); }
+    .lc-progress { background:rgba(255,255,255,0.06); border-radius:999px; height:5px; margin-top:16px; overflow:hidden; }
+    .lc-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--purple),var(--purple-l)); width:37.5%; animation:fillBar 1.8s ease forwards; }
+    @keyframes fillBar { from{width:0} }
+
     /* ── TESTIMONIALS ── */
-    .testi-sec { padding:72px 4%; background:#fff; }
+    .testi-sec { padding:80px 5%; }
     .testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
-    .testi { background:var(--bg); border:1.5px solid var(--border); border-radius:16px; padding:26px; transition:all .3s; }
-    .testi:hover { border-color:var(--purple); transform:translateY(-3px); }
-    .stars { color:var(--yellow); font-size:13px; letter-spacing:2px; margin-bottom:13px; }
+    .testi {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:26px; transition:all .3s;
+    }
+    .testi:hover { border-color:var(--border2); transform:translateY(-3px); }
+    .stars { color:var(--yellow); font-size:12px; letter-spacing:2px; margin-bottom:13px; }
     .testi p { font-size:13.5px; color:var(--muted); line-height:1.8; margin-bottom:18px; }
     .testi-aut { display:flex; align-items:center; gap:11px; }
     .tav { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; color:#fff; flex-shrink:0; }
-    .tav-name { font-size:13.5px; font-weight:700; color:var(--navy); }
+    .tav-name { font-size:13.5px; font-weight:700; }
     .tav-meta { font-size:11.5px; color:var(--muted); margin-top:1px; }
 
     /* ── CTA ── */
-    .cta-sec { background:linear-gradient(135deg,var(--navy),#1e2d6e); padding:80px 4%; text-align:center; position:relative; overflow:hidden; }
-    .cta-sec::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(92,53,214,0.25) 0%,transparent 70%); pointer-events:none; }
-    .cta-sec h2 { font-size:clamp(2rem,3.5vw,2.8rem); font-weight:900; color:#fff; margin-bottom:14px; position:relative; z-index:1; }
-    .cta-sec p { font-size:16px; color:rgba(255,255,255,0.7); max-width:500px; margin:0 auto 34px; line-height:1.85; position:relative; z-index:1; }
-    .cta-note { margin-top:16px; font-size:12.5px; color:rgba(255,255,255,0.45); position:relative; z-index:1; }
+    .cta-sec {
+      background:linear-gradient(135deg,var(--purple-d),#1a0f3a);
+      padding:90px 5%; text-align:center; position:relative; overflow:hidden;
+    }
+    .cta-sec::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(108,92,231,0.2) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .cta-sec h2 { font-size:clamp(2rem,4vw,3rem); font-weight:900; margin-bottom:14px; position:relative; z-index:1; }
+    .cta-sec p { font-size:16px; color:rgba(255,255,255,0.7); max-width:500px; margin:0 auto 36px; line-height:1.85; position:relative; z-index:1; }
+    .cta-note { margin-top:16px; font-size:12.5px; color:rgba(255,255,255,0.5); position:relative; z-index:1; }
     .cta-btns { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; position:relative; z-index:1; }
 
     /* ── FOOTER ── */
-    footer { background:var(--navy); color:#fff; padding:48px 4% 28px; }
-    .ft { display:flex; gap:40px; flex-wrap:wrap; padding-bottom:36px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:26px; }
+    footer { background:#03050a; border-top:1px solid var(--border); padding:48px 5% 28px; }
+    .ft { display:flex; gap:40px; flex-wrap:wrap; padding-bottom:36px; border-bottom:1px solid var(--border); margin-bottom:26px; }
     .ft-brand { flex:1.5; min-width:220px; }
-    .ft-brand p { font-size:13px; color:rgba(255,255,255,0.55); line-height:1.8; margin-top:12px; max-width:280px; }
-    .ft-logo-text { font-size:20px; font-weight:900; color:#fff; }
-    .ft-logo-text .inf { color:var(--yellow); }
-    .ft-logo-sub { font-size:8px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:0.1em; text-transform:uppercase; }
+    .ft-brand p { font-size:13px; color:var(--muted); line-height:1.8; margin-top:12px; max-width:280px; }
     .ft-col { flex:1; min-width:120px; }
-    .ft-col h5 { font-size:11.5px; font-weight:700; color:rgba(255,255,255,0.85); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.07em; }
-    .ft-col a { display:block; font-size:13px; color:rgba(255,255,255,0.5); text-decoration:none; margin-bottom:9px; transition:color .2s; }
+    .ft-col h5 { font-size:11.5px; font-weight:700; color:#fff; margin-bottom:14px; text-transform:uppercase; letter-spacing:0.07em; }
+    .ft-col a { display:block; font-size:13px; color:var(--muted); text-decoration:none; margin-bottom:9px; transition:color .2s; }
     .ft-col a:hover { color:var(--yellow); }
     .ft-bot { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:11px; }
-    .ft-bot p { font-size:12.5px; color:rgba(255,255,255,0.35); }
+    .ft-bot p { font-size:12.5px; color:var(--muted); }
 
     /* ── REVEAL ── */
-    .rv { opacity:0; transform:translateY(20px); transition:opacity .6s ease,transform .6s ease; }
+    .rv { opacity:0; transform:translateY(24px); transition:opacity .6s ease,transform .6s ease; }
     .rv.vis { opacity:1; transform:none; }
 
     /* ── RESPONSIVE ── */
-    @media(max-width:1100px) { .why-grid { grid-template-columns:repeat(3,1fr); } .dark-banner { grid-template-columns:1fr 1fr; } }
+    @media(max-width:1024px) {
+      .hiw-grid { grid-template-columns:repeat(2,1fr); }
+      .feat-grid { grid-template-columns:repeat(2,1fr); }
+    }
     @media(max-width:900px) {
-      .hero { grid-template-columns:1fr; padding-top:84px; text-align:center; }
+      .hero { flex-direction:column; padding-top:96px; text-align:center; }
+      .hero-left { max-width:100%; }
       .hero-btns { justify-content:center; }
-      .hero-pills { justify-content:center; }
-      .hero-sub { margin:0 auto 28px; }
-      .hero-badge { margin:0 auto 20px; display:inline-flex; }
-      .cycle-wrap { display:none; }
+      .hero-social { justify-content:center; }
+      .hero-right { max-width:100%; width:100%; }
+      .flow-cards { grid-template-columns:1fr 1fr 1fr; }
       .nav-links { display:none; }
       .testi-grid { grid-template-columns:1fr; }
       .hiw-grid { grid-template-columns:1fr 1fr; }
-      .why-grid { grid-template-columns:1fr 1fr; }
-      .dark-banner { grid-template-columns:1fr; }
     }
     @media(max-width:600px) {
-      .hiw-grid { grid-template-columns:1fr; }
-      .why-grid { grid-template-columns:1fr 1fr; }
       .feat-grid { grid-template-columns:1fr; }
+      .hiw-grid { grid-template-columns:1fr; }
+      .flow-cards { grid-template-columns:1fr; }
+      .flow-steps { gap:4px; }
+      .flow-step { min-width:60px; }
+      .flow-arrow { display:none; }
     }
   </style>
 </head>
@@ -264,22 +378,20 @@
 <!-- ── NAVBAR ── -->
 <nav>
   <a href="#" class="logo">
-    <div class="logo-wrap">
-      <span class="logo-text">Gok<span class="inf">∞</span></span>
+    <div class="logo-icon">G∞</div>
+    <div class="logo-text-wrap">
+      <span class="logo-name">Gok<span>oo</span></span>
       <span class="logo-sub">Goal of Knowledge</span>
     </div>
   </a>
   <div class="nav-links">
-    <a href="#concepts">Courses ▾</a>
+    <a href="#" class="active">Home</a>
+    <a href="#concepts">Courses</a>
     <a href="#howitworks">How It Works</a>
-    <a href="#features">Test Series</a>
-    <a href="#features">Study Materials</a>
-    <a href="#about">Results</a>
-    <a href="#about">Pricing</a>
+    <a href="#features">Features</a>
     <a href="#about">About Us</a>
   </div>
   <div class="nav-actions">
-    <div class="nav-search">🔍</div>
     <a href="https://app.gokoo.in/login" class="btn-login">Login</a>
     <a href="https://app.gokoo.in" class="btn-getstarted">Get Started</a>
   </div>
@@ -287,107 +399,104 @@
 
 <!-- ── HERO ── -->
 <section class="hero" id="home">
-  <!-- LEFT -->
-  <div class="rv">
+  <div class="hero-left rv">
     <div class="hero-badge">For JEE (Main + Advanced) &amp; NEET Aspirants</div>
     <h1>
-      Master Concepts.<br>
-      <span class="grad">Crack JEE &amp; NEET.</span>
+      Learn Smarter.<br>
+      <span class="yellow">Master</span> Every <span class="purple">Concept.</span>
     </h1>
-    <p class="hero-sub">Smart learning cycle that helps you learn, practice, improve and top your exam.</p>
+    <p class="hero-sub">
+      At Gokoo, every wrong answer is a step towards success.
+      We guide you from doubt to mastery — one concept at a time.
+    </p>
     <div class="hero-btns">
-      <a href="https://app.gokoo.in" class="btn-dark">Start Learning Now →</a>
-      <a href="#howitworks" class="btn-outline-dark"><span class="play-btn">▶</span> Watch Demo</a>
+      <a href="https://app.gokoo.in" class="btn-primary">Start Your Journey →</a>
+      <a href="#howitworks" class="btn-outline"><span class="play-icon">▶</span> Watch Demo</a>
     </div>
-    <div class="hero-pills">
-      <span class="hero-pill">Expert Faculty</span>
-      <span class="hero-pill">Concept Based Learning</span>
-      <span class="hero-pill">Practice + Analysis</span>
-      <span class="hero-pill">Personalized Progress</span>
+    <div class="hero-social">
+      <div class="avatars">
+        <span style="background:#6c5ce7">R</span>
+        <span style="background:#f5c842;color:#1a1200">A</span>
+        <span style="background:#22c55e">S</span>
+        <span style="background:#ec4899">P</span>
+        <span style="background:#38bdf8">D</span>
+      </div>
+      <div class="social-txt"><strong>50,000+ Students</strong><br>on their path to success!</div>
     </div>
   </div>
 
-  <!-- CENTER: LEARNING CYCLE -->
-  <div class="rv">
-    <div class="cycle-wrap">
-      <div class="cycle-ring"></div>
-      <div class="cycle-bg"></div>
-      <div class="cycle-center">
-        <div class="cycle-center-label">The</div>
-        <div class="cycle-logo-text">Gok<span class="inf">∞</span></div>
-        <div class="cycle-cycle">Learning Cycle</div>
+  <div class="hero-right rv">
+    <div class="flow-box">
+      <div class="flow-header">
+        <div class="flow-title">✨ Our Unique <span>Learning Flow</span></div>
+        <div class="flow-note">We don't just give answers, we build concepts!</div>
       </div>
-      <!-- SVG arrows -->
-      <svg class="cycle-arrows" viewBox="0 0 380 370" fill="none">
-        <path d="M190 75 Q310 100 315 155" stroke="#1a73e8" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-blue)" fill="none"/>
-        <path d="M325 185 Q330 280 255 320" stroke="#0f9d58" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-green)" fill="none"/>
-        <path d="M225 330 Q150 345 120 315" stroke="#f4511e" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-orange)" fill="none"/>
-        <path d="M60 295 Q45 210 68 165" stroke="#f4b400" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-yellow)" fill="none"/>
-        <path d="M80 140 Q125 75 170 68" stroke="#7c4dff" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-purple)" fill="none"/>
-        <defs>
-          <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a73e8"/></marker>
-          <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0f9d58"/></marker>
-          <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f4511e"/></marker>
-          <marker id="arr-yellow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f4b400"/></marker>
-          <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c4dff"/></marker>
-        </defs>
-      </svg>
-      <!-- Step 1: Attempt (top) -->
-      <div class="cycle-step cs1">
-        <div class="cs-num" style="background:#1a73e8">1</div>
-        <div class="cs-name">Attempt</div>
-        <div class="cs-desc">Solve a question</div>
-      </div>
-      <!-- Step 2: Learn (top-right) -->
-      <div class="cycle-step cs2">
-        <div class="cs-num" style="background:#0f9d58">2</div>
-        <div class="cs-name">Learn</div>
-        <div class="cs-desc">Concept in English / Hinglish</div>
-        <div class="cs-icons">
-          <div class="cs-icon" style="background:#e6f4ea">📖</div>
-          <div class="cs-icon" style="background:#e8f4fd">▶</div>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <div class="flow-icon">❓</div>
+          <div class="flow-step-name">Attempt</div>
+          <div class="flow-step-desc">Solve the Question</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <div class="flow-icon">📖</div>
+          <div class="flow-step-name">Learn</div>
+          <div class="flow-step-desc">Theory / Video English / Hinglish</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <div class="flow-icon">✅</div>
+          <div class="flow-step-name">Simplified</div>
+          <div class="flow-step-desc">Practice with an easier question</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <div class="flow-icon">💡</div>
+          <div class="flow-step-name">Hint</div>
+          <div class="flow-step-desc">Get a hint to think better</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">5</div>
+          <div class="flow-icon">🔄</div>
+          <div class="flow-step-name">Revisit &amp; Master</div>
+          <div class="flow-step-desc">Revisit theory &amp; master concept</div>
         </div>
       </div>
-      <!-- Step 3: Practice (bottom-right) -->
-      <div class="cycle-step cs3">
-        <div class="cs-num" style="background:#f4511e">3</div>
-        <div class="cs-name">Practice</div>
-        <div class="cs-desc">Simplified Question</div>
-      </div>
-      <!-- Step 4: Hint (bottom-left) -->
-      <div class="cycle-step cs4">
-        <div class="cs-num" style="background:#f4b400">4</div>
-        <div class="cs-name">Hint</div>
-        <div class="cs-desc">Get a helpful hint</div>
-      </div>
-      <!-- Step 5: Revisit (top-left) -->
-      <div class="cycle-step cs5">
-        <div class="cs-num" style="background:#7c4dff">5</div>
-        <div class="cs-name">Revisit</div>
-        <div class="cs-desc">Revise &amp; Master</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RIGHT: STATS CARD -->
-  <div class="rv">
-    <div class="hero-stats-card">
-      <div class="hsc-title">Your Preparation,<br>Our Priority</div>
-      <div class="hsc-row">
-        <div class="hsc-icon" style="background:rgba(92,53,214,0.2)">👥</div>
-        <div><div class="hsc-num">50,000+</div><div class="hsc-label">Students Trust Gokoo</div></div>
-      </div>
-      <div class="hsc-row">
-        <div class="hsc-icon" style="background:rgba(26,115,232,0.2)">📝</div>
-        <div><div class="hsc-num">10,000+</div><div class="hsc-label">Practice Questions</div></div>
-      </div>
-      <div class="hsc-row">
-        <div class="hsc-icon" style="background:rgba(244,81,30,0.2)">▶️</div>
-        <div><div class="hsc-num">5,000+</div><div class="hsc-label">Video Lectures</div></div>
-      </div>
-      <div class="hsc-row">
-        <div class="hsc-icon" style="background:rgba(15,157,88,0.2)">📊</div>
-        <div><div class="hsc-num">95%+</div><div class="hsc-label">Success Rate</div></div>
+      <div class="flow-cards">
+        <div class="flow-card">
+          <div class="fc-label">Sample Question</div>
+          <span class="fc-subject">Physics</span>
+          <div class="fc-text">A block of mass m is kept on a rough surface with force F. Find the acceleration.</div>
+          <a href="https://app.gokoo.in" class="fc-link">View Solution →</a>
+        </div>
+        <div class="flow-card">
+          <div class="fc-label">Your Progress</div>
+          <div class="progress-ring">
+            <div class="ring-wrap">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="21" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="5"/>
+                <circle cx="26" cy="26" r="21" fill="none" stroke="#6c5ce7" stroke-width="5"
+                  stroke-dasharray="131.9" stroke-dashoffset="39.6" stroke-linecap="round"/>
+              </svg>
+              <div class="ring-pct">72%</div>
+            </div>
+            <div class="fc-stats">
+              <div class="fc-stat-row"><span class="fc-stat-label">Concept Mastery</span></div>
+              <div class="fc-stat-row"><span class="fc-stat-label">Learning Streak</span> <span class="streak-val">🔥 12 Days</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="flow-card">
+          <div class="fc-label">Next Up</div>
+          <div style="font-size:28px;text-align:center;margin:6px 0">🚀</div>
+          <div class="fc-text">More practice. More confidence. Closer to your goal!</div>
+          <a href="https://app.gokoo.in" class="fc-link">Continue Learning →</a>
+        </div>
       </div>
     </div>
   </div>
@@ -395,109 +504,66 @@
 
 <!-- ── SUBJECTS ── -->
 <div class="subjects-bar">
-  <div class="subj-label">Explore<br><span>Subjects</span></div>
-  <span class="subj-arrow">↗</span>
+  <div class="subjects-label">Explore<br><span>Subjects</span></div>
   <div class="subj-tabs">
-    <a href="https://app.gokoo.in" class="subj-tab"><span class="subj-icon">⚛️</span><div class="subj-tab-info"><div class="subj-tab-name">Physics</div><div class="subj-tab-sub">Concepts &amp; Practice</div></div></a>
-    <a href="https://app.gokoo.in" class="subj-tab"><span class="subj-icon">🧪</span><div class="subj-tab-info"><div class="subj-tab-name">Chemistry</div><div class="subj-tab-sub">Concepts &amp; Practice</div></div></a>
-    <a href="https://app.gokoo.in" class="subj-tab"><span class="subj-icon">π</span><div class="subj-tab-info"><div class="subj-tab-name">Mathematics</div><div class="subj-tab-sub">Concepts &amp; Practice</div></div></a>
-    <a href="https://app.gokoo.in" class="subj-tab"><span class="subj-icon">🌿</span><div class="subj-tab-info"><div class="subj-tab-name">Biology</div><div class="subj-tab-sub">Concepts &amp; Practice</div></div></a>
+    <a href="https://app.gokoo.in" class="subj-tab"><span class="subj-icon">⚛️</span> Physics</a>
+    <a href="https://app.gokoo.in" class="subj-tab"><span class="subj-icon">🧪</span> Chemistry</a>
+    <a href="https://app.gokoo.in" class="subj-tab"><span class="subj-icon">π</span> Mathematics</a>
+    <a href="https://app.gokoo.in" class="subj-tab"><span class="subj-icon">🧬</span> Biology</a>
   </div>
   <div class="subj-search">
-    <div class="subj-search-wrap">
-      <input type="text" placeholder="Search for chapters, topics..." />
-    </div>
+    <input type="text" placeholder="Search for chapters, topics..." />
     <button>Search</button>
   </div>
 </div>
 
-<!-- ── WHY STUDENTS LOVE GOKOO ── -->
-<section class="why-sec rv" id="features">
-  <div class="why-title">Why Students Love Gok<span class="inf">∞</span><span></span></div>
-  <div class="why-grid">
-    <div class="why-card">
-      <div class="why-icon" style="background:#f0ebff">🎯</div>
+<!-- ── FEATURES ── -->
+<section class="features rv" id="features">
+  <div class="feat-grid">
+    <div class="feat">
+      <div class="feat-ico ico-p">🎯</div>
       <h3>Concept First Approach</h3>
-      <p>Learn with clarity using theory (Videos &amp; Notes) in English &amp; Hinglish.</p>
+      <p>Understand deeply with theory &amp; videos before moving ahead. Build the foundation right.</p>
     </div>
-    <div class="why-card">
-      <div class="why-icon" style="background:#fff8e1">💡</div>
-      <h3>Smart Learning Cycle</h3>
-      <p>From attempt to mastery — we guide you at every step of the way.</p>
+    <div class="feat">
+      <div class="feat-ico ico-o">🧠</div>
+      <h3>Learn by Doing</h3>
+      <p>Solve, practice, make mistakes and improve with smart AI-powered guidance every step.</p>
     </div>
-    <div class="why-card">
-      <div class="why-icon" style="background:#fff3e0">👑</div>
-      <h3>Exam Oriented Practice</h3>
-      <p>High quality questions curated for JEE &amp; NEET pattern &amp; difficulty.</p>
+    <div class="feat">
+      <div class="feat-ico ico-g">📈</div>
+      <h3>Track &amp; Improve</h3>
+      <p>Detailed analytics to track your progress &amp; weak areas. Know exactly where to focus.</p>
     </div>
-    <div class="why-card">
-      <div class="why-icon" style="background:#e6f4ea">📈</div>
-      <h3>Track. Analyze. Improve.</h3>
-      <p>Detailed performance analytics to help you improve every single day.</p>
-    </div>
-    <div class="why-card">
-      <div class="why-icon" style="background:#fce8e6">⭐</div>
-      <h3>Topper's Mindset</h3>
-      <p>Learn strategies, shortcuts &amp; time management from toppers who cracked it.</p>
+    <div class="feat">
+      <div class="feat-ico ico-b">🏆</div>
+      <h3>Top Rank Mindset</h3>
+      <p>Curated for JEE &amp; NEET toppers. Built for you. Earn XP, climb leaderboards, win.</p>
     </div>
   </div>
 </section>
 
-<!-- ── DARK BANNER ── -->
-<div class="dark-banner rv" id="about">
-  <div class="db-card">
-    <div class="db-title">Trusted by Top Performers</div>
-    <div class="topper-grid">
-      <div class="topper-card">
-        <div class="topper-avatar">A</div>
-        <div><div class="topper-air">AIR 18</div><div class="topper-exam">JEE Advanced 2023</div></div>
-      </div>
-      <div class="topper-card">
-        <div class="topper-avatar" style="background:linear-gradient(135deg,#0f9d58,#34d399)">R</div>
-        <div><div class="topper-air">AIR 27</div><div class="topper-exam">JEE Advanced 2023</div></div>
-      </div>
-      <div class="topper-card">
-        <div class="topper-avatar" style="background:linear-gradient(135deg,#f4511e,#fb923c)">S</div>
-        <div><div class="topper-air">AIR 43</div><div class="topper-exam">NEET 2023</div></div>
-      </div>
-      <div class="topper-card">
-        <div class="topper-avatar" style="background:linear-gradient(135deg,#f4b400,#facc15)">P</div>
-        <div><div class="topper-air">AIR 56</div><div class="topper-exam">JEE Advanced 2023</div></div>
-      </div>
-    </div>
-    <div class="topper-more">... and thousands more</div>
-  </div>
-  <div class="db-card">
-    <div class="db-title">All India Test Series</div>
-    <div class="test-list">
-      <div class="test-item">JEE Main &amp; Advanced</div>
-      <div class="test-item">NEET (UG)</div>
-      <div class="test-item">Chapter Wise Tests</div>
-      <div class="test-item">Full Length Tests</div>
-    </div>
-    <div class="test-trophy">🏆</div>
-  </div>
-  <div class="db-card">
-    <div class="db-title">Your Success is Our Mission</div>
-    <div class="mission-sub">Quality content. Smart technology. Personalized guidance.</div>
-    <div class="mission-points">
-      <div class="mission-pt">AI-powered adaptive learning</div>
-      <div class="mission-pt">Learn in English &amp; Hinglish</div>
-      <div class="mission-pt">Expert faculty support</div>
-    </div>
-    <a href="https://app.gokoo.in" class="btn-yellow">Start Your Journey →</a>
-    <div class="mission-rocket">🚀</div>
-  </div>
+<!-- ── STATS ── -->
+<div class="stats-bar rv">
+  <div class="stat"><span class="stat-icon">👥</span><div><div class="stat-n">50,000+</div><div class="stat-l">Happy Students</div></div></div>
+  <div class="stat"><span class="stat-icon">🎓</span><div><div class="stat-n">200+</div><div class="stat-l">Expert Educators</div></div></div>
+  <div class="stat"><span class="stat-icon">▶️</span><div><div class="stat-n">5,000+</div><div class="stat-l">Video Lectures</div></div></div>
+  <div class="stat"><span class="stat-icon">📝</span><div><div class="stat-n">1,00,000+</div><div class="stat-l">Practice Questions</div></div></div>
+  <div class="stat"><span class="stat-icon">📊</span><div><div class="stat-n">95%+</div><div class="stat-l">Success Rate</div></div></div>
 </div>
 
-<!-- ── BOTTOM FEATURES ── -->
-<div class="bottom-feats rv">
-  <div class="bf-item"><div class="bf-icon">🎥</div><div class="bf-name">Live + Recorded Classes</div></div>
-  <div class="bf-item"><div class="bf-icon">📄</div><div class="bf-name">Downloadable Study Material</div></div>
-  <div class="bf-item"><div class="bf-icon">💬</div><div class="bf-name">Doubt Support 24x7</div></div>
-  <div class="bf-item"><div class="bf-icon">👨‍🏫</div><div class="bf-name">Personalized Mentorship</div></div>
-  <div class="bf-item"><div class="bf-icon">💰</div><div class="bf-name">Affordable Courses</div></div>
-  <div class="bf-item"><div class="bf-icon">📱</div><div class="bf-name">Learn Anytime, Anywhere</div></div>
+<!-- ── TRUSTED ── -->
+<div class="trusted rv">
+  <p>Trusted by thousands of JEE &amp; NEET aspirants across India</p>
+  <div class="trust-logos">
+    <div class="trust-logo">🏛 IIT Bombay</div>
+    <div class="trust-logo">🏛 IIT Delhi</div>
+    <div class="trust-logo">🏛 IIT Madras</div>
+    <div class="trust-logo">🏥 AIIMS Delhi</div>
+    <div class="trust-logo">🏛 NIT Trichy</div>
+    <div class="trust-logo">🏛 BITS Pilani</div>
+    <div class="trust-logo" style="color:var(--muted)">and many more...</div>
+  </div>
 </div>
 
 <!-- ── HOW IT WORKS ── -->
@@ -508,34 +574,89 @@
     <p>A structured path that builds real understanding, not just marks.</p>
   </div>
   <div class="hiw-grid">
-    <div class="hiw-card rv"><div class="hiw-num">1</div><h3>Pick a Concept</h3><p>Browse topics across Physics, Chemistry, Mathematics &amp; Biology. Unlock chapters as your XP grows.</p></div>
-    <div class="hiw-card rv"><div class="hiw-num">2</div><h3>Climb the Ladder</h3><p>Attempt scaffolded sub-questions building up to the boss problem. Each correct step earns XP.</p></div>
-    <div class="hiw-card rv"><div class="hiw-num">3</div><h3>Get Unstuck Fast</h3><p>Wrong answer? Get a simplified question, hint, or theory card in English or Hinglish.</p></div>
-    <div class="hiw-card rv"><div class="hiw-num">4</div><h3>Rise on the Board</h3><p>Complete ladders, earn bonus XP, unlock new concepts, and climb the live leaderboard.</p></div>
+    <div class="hiw-card rv">
+      <div class="hiw-num">1</div>
+      <h3>Pick a Concept</h3>
+      <p>Browse topics across Physics, Chemistry, Mathematics &amp; Biology. Unlock new chapters as your XP grows.</p>
+    </div>
+    <div class="hiw-card rv">
+      <div class="hiw-num">2</div>
+      <h3>Climb the Ladder</h3>
+      <p>Attempt 8 scaffolded sub-questions building up to the boss problem. Each correct step earns XP.</p>
+    </div>
+    <div class="hiw-card rv">
+      <div class="hiw-num">3</div>
+      <h3>Get Unstuck Fast</h3>
+      <p>Wrong answer? Get a simplified question, a hint, theory card in English or Hinglish — whatever you need.</p>
+    </div>
+    <div class="hiw-card rv">
+      <div class="hiw-num">4</div>
+      <h3>Rise on the Board</h3>
+      <p>Complete ladders, earn bonus XP, unlock new concepts, and climb the live leaderboard daily.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── LADDER PREVIEW ── -->
+<section class="ladder-sec" id="concepts">
+  <div class="ladder-wrap">
+    <div class="ladder-l rv">
+      <div class="sec-tag">Live Demo</div>
+      <h2>See the Ladder<br>in Action</h2>
+      <p>This is what your student sees. 8 focused steps, each building toward the full problem. Complete all 8 → earn 20 bonus XP.</p>
+      <a href="https://app.gokoo.in" class="btn-primary" style="display:inline-flex;margin-top:10px">Start Learning Free →</a>
+    </div>
+    <div class="ladder-r rv">
+      <div class="ladder-card">
+        <div class="lc-header"><span class="lc-title">Newton's Laws — Friction</span><span class="xp-badge">380 XP</span></div>
+        <div class="step-row done"><div class="step-dot done">✓</div><div class="step-info"><div class="step-name">Normal Force Identification</div><div class="step-meta">First attempt · 28s</div></div><div class="step-pts">+10 pts</div></div>
+        <div class="step-row done"><div class="step-dot done">✓</div><div class="step-info"><div class="step-name">Friction Coefficient</div><div class="step-meta">Used hint · 45s</div></div><div class="step-pts">+5 pts</div></div>
+        <div class="step-row done"><div class="step-dot done">✓</div><div class="step-info"><div class="step-name">Net Force Calculation</div><div class="step-meta">First attempt · 32s ⚡</div></div><div class="step-pts">+15 pts</div></div>
+        <div class="step-row active"><div class="step-dot active">4</div><div class="step-info"><div class="step-name">Acceleration of System</div><div class="step-meta">⏱ 00:23 — In Progress</div></div><div class="step-pts">+10 pts</div></div>
+        <div class="step-row locked"><div class="step-dot locked">5</div><div class="step-info"><div class="step-name">Tension in String</div><div class="step-meta">Locked</div></div><div class="step-pts">—</div></div>
+        <div class="step-row locked"><div class="step-dot locked">6</div><div class="step-info"><div class="step-name">Free Body Diagram</div><div class="step-meta">Locked</div></div><div class="step-pts">—</div></div>
+        <div class="step-row locked"><div class="step-dot locked">7</div><div class="step-info"><div class="step-name">Work-Energy Theorem</div><div class="step-meta">Locked</div></div><div class="step-pts">—</div></div>
+        <div class="step-row locked"><div class="step-dot locked">8</div><div class="step-info"><div class="step-name">Final Boss Question</div><div class="step-meta">Locked</div></div><div class="step-pts">+25 pts</div></div>
+        <div class="lc-progress"><div class="lc-fill"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:7px"><span>Step 3 of 8 completed</span><span>+20 bonus on completion</span></div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ── TESTIMONIALS ── -->
-<section class="testi-sec" id="concepts">
+<section class="testi-sec" id="about">
   <div class="sec-hdr rv">
     <div class="sec-tag">Student Results</div>
     <h2>What Students Say</h2>
-    <p>Real students. Real progress. Here's what happens when learning actually works.</p>
+    <p>Real students. Real progress. These are not curated — they're what happens when learning actually works.</p>
   </div>
   <div class="testi-grid">
-    <div class="testi rv"><div class="stars">★★★★★</div><p>"I used to hate Newton's Laws. After doing 3 ladders here, I actually enjoy solving problems. The AI questions are a game changer — I never stay stuck."</p><div class="testi-aut"><div class="tav" style="background:#5c35d6">R</div><div><div class="tav-name">Rahul Sharma</div><div class="tav-meta">Class 11 · JEE · 1,240 XP</div></div></div></div>
-    <div class="testi rv"><div class="stars">★★★★★</div><p>"The points system is addictive. I find myself doing one more step to maintain my streak. And I realised I'm actually learning — not just clicking through videos."</p><div class="testi-aut"><div class="tav" style="background:#f5b800;color:#1a1200">A</div><div><div class="tav-name">Anjali Mishra</div><div class="tav-meta">Class 12 · NEET · 980 XP</div></div></div></div>
-    <div class="testi rv"><div class="stars">★★★★★</div><p>"Theory cards in Hinglish are perfect. I understand concepts so much faster. The hint system means I never feel completely lost on a tough problem."</p><div class="testi-aut"><div class="tav" style="background:#0f9d58">S</div><div><div class="tav-name">Siddharth Verma</div><div class="tav-meta">Dropper · JEE 2024 · 2,100 XP</div></div></div></div>
+    <div class="testi rv">
+      <div class="stars">★★★★★</div>
+      <p>"I used to hate Newton's Laws. After doing 3 ladders here, I actually enjoy solving problems. The AI questions are a game changer — I never stay stuck."</p>
+      <div class="testi-aut"><div class="tav" style="background:#6c5ce7">R</div><div><div class="tav-name">Rahul Sharma</div><div class="tav-meta">Class 11 · JEE · 1,240 XP</div></div></div>
+    </div>
+    <div class="testi rv">
+      <div class="stars">★★★★★</div>
+      <p>"The points system is addictive. I find myself doing one more step to maintain my streak. And I realised I'm actually learning — not just clicking through videos."</p>
+      <div class="testi-aut"><div class="tav" style="background:#f5c842;color:#1a1200">A</div><div><div class="tav-name">Anjali Mishra</div><div class="tav-meta">Class 12 · NEET · 980 XP</div></div></div>
+    </div>
+    <div class="testi rv">
+      <div class="stars">★★★★★</div>
+      <p>"The theory cards in Hinglish are perfect. I understand concepts so much faster now. The hint system means I never feel completely lost on a problem."</p>
+      <div class="testi-aut"><div class="tav" style="background:#22c55e">S</div><div><div class="tav-name">Siddharth Verma</div><div class="tav-meta">Dropper · JEE 2024 · 2,100 XP</div></div></div>
+    </div>
   </div>
 </section>
 
 <!-- ── CTA ── -->
 <section class="cta-sec">
   <h2>Stop Watching. Start <span style="color:var(--yellow)">Doing.</span></h2>
-  <p>Join 50,000+ students who are actively mastering concepts — one step at a time.</p>
+  <p>Join 50,000+ students who are actively mastering concepts — one step at a time, one ladder at a time.</p>
   <div class="cta-btns">
-    <a href="https://app.gokoo.in" class="btn-yellow" style="font-size:15.5px;padding:14px 32px">Start Learning Free →</a>
-    <a href="https://admin.gokoo.in" class="btn-outline-dark" style="font-size:15.5px;padding:14px 32px;border-color:rgba(255,255,255,0.2);color:#fff">Admin Panel</a>
+    <a href="https://app.gokoo.in" class="btn-primary" style="font-size:15.5px;padding:14px 32px">Start Learning Free →</a>
+    <a href="https://admin.gokoo.in" class="btn-outline" style="font-size:15.5px;padding:14px 32px">Admin Panel</a>
   </div>
   <div class="cta-note">✓ Free to start &nbsp;·&nbsp; ✓ No credit card &nbsp;·&nbsp; ✓ JEE &amp; NEET focused</div>
 </section>
@@ -544,23 +665,47 @@
 <footer>
   <div class="ft">
     <div class="ft-brand">
-      <div><span class="ft-logo-text">Gok<span class="inf">∞</span></span><br><span class="ft-logo-sub">Goal of Knowledge</span></div>
+      <a href="#" class="logo" style="display:inline-flex">
+        <div class="logo-icon">G∞</div>
+        <div class="logo-text-wrap">
+          <span class="logo-name">Gok<span>oo</span></span>
+          <span class="logo-sub">Goal of Knowledge</span>
+        </div>
+      </a>
       <p>India's most adaptive learning platform for JEE &amp; NEET aspirants. Build real understanding, not just marks.</p>
     </div>
-    <div class="ft-col"><h5>Platform</h5><a href="#features">Features</a><a href="#howitworks">How It Works</a><a href="https://app.gokoo.in">Student App</a><a href="https://admin.gokoo.in">Admin Panel</a></div>
-    <div class="ft-col"><h5>Subjects</h5><a href="https://app.gokoo.in">Physics</a><a href="https://app.gokoo.in">Chemistry</a><a href="https://app.gokoo.in">Mathematics</a><a href="https://app.gokoo.in">Biology</a></div>
-    <div class="ft-col"><h5>Exams</h5><a href="https://app.gokoo.in">JEE Mains</a><a href="https://app.gokoo.in">JEE Advanced</a><a href="https://app.gokoo.in">NEET</a><a href="https://app.gokoo.in">Class 11 &amp; 12</a></div>
+    <div class="ft-col">
+      <h5>Platform</h5>
+      <a href="#features">Features</a>
+      <a href="#howitworks">How It Works</a>
+      <a href="https://app.gokoo.in">Student App</a>
+      <a href="https://admin.gokoo.in">Admin Panel</a>
+    </div>
+    <div class="ft-col">
+      <h5>Subjects</h5>
+      <a href="https://app.gokoo.in">Physics</a>
+      <a href="https://app.gokoo.in">Chemistry</a>
+      <a href="https://app.gokoo.in">Mathematics</a>
+      <a href="https://app.gokoo.in">Biology</a>
+    </div>
+    <div class="ft-col">
+      <h5>Exams</h5>
+      <a href="https://app.gokoo.in">JEE Mains</a>
+      <a href="https://app.gokoo.in">JEE Advanced</a>
+      <a href="https://app.gokoo.in">NEET</a>
+      <a href="https://app.gokoo.in">Class 11 &amp; 12</a>
+    </div>
   </div>
   <div class="ft-bot">
     <p>© 2025 GOKOO — Goal of Knowledge. All rights reserved.</p>
-    <p style="color:rgba(255,255,255,0.35)">Made with ❤️ for India's future toppers</p>
+    <p style="color:var(--yellow)">Made with ❤️ for India's future toppers</p>
   </div>
 </footer>
 
 <script>
 const rv = new IntersectionObserver(es => es.forEach(e => {
   if (e.isIntersecting) { e.target.classList.add('vis'); rv.unobserve(e.target); }
-}), { threshold: .08 });
+}), { threshold: .1 });
 document.querySelectorAll('.rv').forEach(e => rv.observe(e));
 </script>
 </body>

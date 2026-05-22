@@ -117,6 +117,37 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
+// POST /api/auth/test-login  (only works when TEST_LOGIN_ENABLED=true)
+router.post('/test-login', async (req, res) => {
+  try {
+    if (process.env.TEST_LOGIN_ENABLED !== 'true') {
+      return res.status(403).json({ success: false, error: 'Test login is disabled' });
+    }
+    const { secret } = req.body;
+    if (secret !== process.env.TEST_LOGIN_SECRET) {
+      return res.status(401).json({ success: false, error: 'Invalid test secret' });
+    }
+
+    // Find or create test student
+    let result = await pool.query('SELECT * FROM students WHERE phone = $1', ['0000000000']);
+    if (result.rows.length === 0) {
+      result = await pool.query(
+        'INSERT INTO students (name, phone) VALUES ($1, $2) RETURNING *',
+        ['Test Student', '0000000000']
+      );
+    }
+    const student = result.rows[0];
+    const token = jwt.sign({ id: student.id, name: student.name }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    res.json({
+      success: true,
+      token,
+      student: { id: student.id, name: student.name, phone: student.phone, total_points: student.total_points, current_level: student.current_level }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 router.post('/admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;

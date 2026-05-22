@@ -357,10 +357,14 @@ button:disabled {
     scrollbar-width: none;
   }
   .gokoo-nav-links::-webkit-scrollbar { display: none; }
-  .gokoo-nav-name { display: none !important; }
+  .gokoo-nav-name { max-width: 64px !important; font-size: 12px !important; }
 
-  /* Subject side arrows: hidden on mobile (use dots navigation instead) */
-  .gokoo-subject-arrow { display: none !important; }
+  /* Subject side arrows: smaller on mobile */
+  .gokoo-subject-arrow {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 18px !important;
+  }
 
   /* General page padding */
   .container { padding: 1rem !important; }

@@ -21,7 +21,7 @@ async function sendVia2Factor(phone, otp) {
   console.log(`[SMS] Sending OTP to ${phone} via 2Factor...`);
   try {
     const { data } = await axios.get(
-      `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${phone}/${otp}/GOKOO`
+      `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${phone}/${otp}/AUTOGEN`
     );
     console.log('[SMS] 2Factor response:', JSON.stringify(data));
     if (data.Status === 'Success') return { sent: true };

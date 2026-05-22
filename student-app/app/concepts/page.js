@@ -424,14 +424,29 @@ export default function ConceptsPage() {
         const subs = enrollRes.enrollment.subjects || [];
         setSubjects(subs);
         if (subs.length > 0) loadConceptsForSubject(subs[0]);
-        else { const d = await apiCall('/concepts'); if (d.success) setConcepts(d.concepts || []); }
+        else {
+          const d = await apiCall('/concepts');
+          if (d.success) {
+            setConcepts(d.concepts || []);
+            const uniq = [...new Set((d.concepts || []).map(c => c.subject).filter(Boolean))];
+            if (uniq.length > 0) setSubjects(uniq);
+          }
+        }
       } else {
         const d = await apiCall('/concepts');
-        if (d.success) setConcepts(d.concepts || []);
+        if (d.success) {
+          setConcepts(d.concepts || []);
+          const uniq = [...new Set((d.concepts || []).map(c => c.subject).filter(Boolean))];
+          if (uniq.length > 0) setSubjects(uniq);
+        }
       }
     } else {
       const d = await apiCall('/concepts');
-      if (d.success) setConcepts(d.concepts || []);
+      if (d.success) {
+        setConcepts(d.concepts || []);
+        const uniq = [...new Set((d.concepts || []).map(c => c.subject).filter(Boolean))];
+        if (uniq.length > 0) setSubjects(uniq);
+      }
     }
     if (homeRes.success) setHomeData(homeRes);
     setEnrollmentLoaded(true);

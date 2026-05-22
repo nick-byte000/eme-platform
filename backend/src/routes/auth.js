@@ -35,6 +35,24 @@ router.post('/send-otp', async (req, res) => {
     const captchaOk = await verifyCaptcha(captchaToken);
     if (!captchaOk) return res.status(400).json({ success: false, error: 'CAPTCHA verification failed. Please try again.' });
 
+    // Test number auto-login (no OTP needed)
+    if (process.env.TEST_LOGIN_ENABLED === 'true' && phone === '0000000000') {
+      let result = await pool.query('SELECT * FROM students WHERE phone = $1', ['0000000000']);
+      if (result.rows.length === 0) {
+        result = await pool.query(
+          'INSERT INTO students (name, phone) VALUES ($1, $2) RETURNING *',
+          ['Test', '0000000000']
+        );
+      }
+      const s = result.rows[0];
+      const token = jwt.sign({ id: s.id, name: s.name }, process.env.JWT_SECRET, { expiresIn: '30d' });
+      return res.json({
+        success: true, is_new_user: false, sms_sent: false,
+        auto_token: token,
+        auto_student: { id: s.id, name: s.name, phone: s.phone, total_points: s.total_points, current_level: s.current_level },
+      });
+    }
+
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 

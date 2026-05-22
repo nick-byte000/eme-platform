@@ -6,7 +6,6 @@ import { saveAuth, isLoggedIn } from '../../src/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
-const TEST_LOGIN_SECRET = process.env.NEXT_PUBLIC_TEST_LOGIN_SECRET || '';
 
 function LoginForm() {
   const router = useRouter();
@@ -45,6 +44,11 @@ function LoginForm() {
         }
         return;
       }
+      if (data.auto_token) {
+        saveAuth(data.auto_token, data.auto_student);
+        router.replace('/concepts');
+        return;
+      }
       if (data.is_new_user) {
         setError('No account found. Please enroll first.');
         recaptchaRef.current?.reset();
@@ -60,24 +64,6 @@ function LoginForm() {
       recaptchaRef.current?.reset();
       setCaptchaToken('');
     }
-  };
-
-  const testLogin = async () => {
-    if (!TEST_LOGIN_SECRET) return;
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API_URL}/auth/test-login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ secret: TEST_LOGIN_SECRET }),
-      });
-      const data = await res.json();
-      if (!data.success) { setError(data.error || 'Test login failed'); return; }
-      saveAuth(data.token, data.student);
-      router.replace('/concepts');
-    } catch { setError('Server error. Please try again.'); }
-    finally { setLoading(false); }
   };
 
   const verifyOtp = async (e) => {
@@ -240,26 +226,6 @@ function LoginForm() {
             </form>
           )}
         </div>
-
-        {TEST_LOGIN_SECRET && (
-          <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-              <span style={{ fontSize: '11px', color: '#6b6b80', whiteSpace: 'nowrap' }}>or</span>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-            </div>
-            <button onClick={testLogin} disabled={loading} style={{
-              width: '100%', padding: '11px', fontSize: '13px', fontWeight: 600,
-              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '8px', color: '#9090a8', cursor: 'pointer', transition: 'all 0.2s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; e.currentTarget.style.color = '#c0c0d8'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#9090a8'; }}
-            >
-              🧪 Test Login (Dev Only)
-            </button>
-          </div>
-        )}
 
         <p style={{ textAlign: 'center', fontSize: '12px', color: '#6b6b80', marginTop: '1.5rem' }}>
           By continuing you agree to our Terms of Service

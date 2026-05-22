@@ -35,12 +35,11 @@ function EnrollForm() {
   const isFree = course?.price === 0;
   const STEP_LABELS = isFree
     ? ['Register', 'Verify OTP', 'Set Password']
-    : ['Register', 'Verify OTP', 'Set Password', 'Payment'];
+    : ['Register', 'Verify OTP', 'Payment', 'Set Password'];
 
   useEffect(() => {
     if (!courseId) { router.replace('/'); return; }
     loadCourse();
-    if (isLoggedIn()) setStep(4);
   }, []);
 
   const loadCourse = async () => {
@@ -49,7 +48,27 @@ function EnrollForm() {
       const data = await res.json();
       if (data.success) {
         const found = (data.courses || []).find(c => String(c.id) === String(courseId));
-        if (found) setCourse(found);
+        if (found) {
+          setCourse(found);
+          if (isLoggedIn()) {
+            // Already has account — skip register/OTP/password steps
+            if (found.price === 0) {
+              // Free course: auto-enroll immediately
+              const token = getToken();
+              const enrollRes = await fetch(`${API_URL}/enrollment/create-order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ course_id: courseId }),
+              });
+              const enrollData = await enrollRes.json();
+              if (enrollData.success || enrollData.already_enrolled) {
+                router.replace('/concepts');
+              }
+            } else {
+              setStep(3); // Go straight to payment
+            }
+          }
+        }
       }
     } catch {}
   };
@@ -103,27 +122,29 @@ function EnrollForm() {
     finally { setLoading(false); }
   };
 
-  // ── Step 3: Set Password ──
+  // ── Set Password (step 3 for free, step 4 for paid) ──
   const setPasswordStep = async (e) => {
     e.preventDefault();
     if (!password.trim() || password.length < 6) { setError('Password must be at least 6 characters'); return; }
     if (password !== confirmPassword) { setError('Passwords do not match'); return; }
     setError('');
     setLoading(true);
+    const token = tempToken || getToken();
     try {
       const res = await fetch(`${API_URL}/auth/set-password`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tempToken}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ password }),
       });
       const data = await res.json();
       if (!data.success) { setError(data.error || 'Failed to set password'); return; }
-      saveAuth(tempToken, tempStudent);
       if (isFree) {
-        // Free course — enroll directly without payment
+        // Free course — save auth then enroll
+        saveAuth(token, tempStudent);
         await enrollFree();
       } else {
-        setStep(4);
+        // Paid course — auth already saved after payment, just redirect
+        router.replace('/concepts');
       }
     } catch { setError('Server error. Please try again.'); }
     finally { setLoading(false); }
@@ -161,10 +182,10 @@ function EnrollForm() {
     setError('');
     setPayStatus('');
     setLoading(true);
+    // Use tempToken if available (new enrollment), fall back to saved token (returning user)
+    const token = tempToken || getToken();
+    const student = tempStudent || getStudent();
     try {
-      const token = getToken();
-      const student = getStudent();
-
       const orderRes = await fetch(`${API_URL}/enrollment/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -199,8 +220,10 @@ function EnrollForm() {
             });
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
-              setPayStatus('Payment successful! Taking you to your course...');
-              setTimeout(() => router.replace('/concepts'), 1500);
+              // Save auth now, then go to set-password step
+              saveAuth(token, student);
+              setPayStatus('Payment successful! Set your password to continue...');
+              setTimeout(() => { setPayStatus(''); setStep(4); setLoading(false); }, 1200);
             } else {
               setError('Payment verification failed. Contact support.');
               setLoading(false);
@@ -379,52 +402,8 @@ function EnrollForm() {
             </form>
           )}
 
-          {/* ── Step 3: Set Password ── */}
-          {step === 3 && (
-            <form onSubmit={setPasswordStep}>
-              <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Create Password</h2>
-              <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.75rem', lineHeight: 1.5 }}>
-                Set a password to login anytime with your phone or email.
-              </p>
-
-              {error && <div className="alert alert-error" style={{ marginBottom: '1rem', fontSize: '13px' }}>{error}</div>}
-
-              <div className="form-group">
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>Password</label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showPass ? 'text' : 'password'} value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Minimum 6 characters" autoFocus
-                    style={{ fontSize: '15px', paddingRight: '48px' }}
-                  />
-                  <button type="button" onClick={() => setShowPass(!showPass)} style={{
-                    position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
-                    background: 'none', border: 'none', color: '#9090a8', cursor: 'pointer', fontSize: '16px', padding: 0,
-                  }}>
-                    {showPass ? '🙈' : '👁'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>Confirm Password</label>
-                <input
-                  type={showPass ? 'text' : 'password'} value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter your password"
-                  style={{ fontSize: '15px' }}
-                />
-              </div>
-
-              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700 }} disabled={loading}>
-                {loading ? 'Setting up...' : isFree ? 'Create Account & Enroll →' : 'Continue to Payment →'}
-              </button>
-            </form>
-          )}
-
-          {/* ── Step 4: Payment ── */}
-          {step === 4 && (
+          {/* ── Step 3: Payment (paid) or Set Password (free) ── */}
+          {step === 3 && !isFree && (
             <div>
               <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Complete Your Enrollment</h2>
               <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.5rem', lineHeight: 1.5 }}>
@@ -485,6 +464,50 @@ function EnrollForm() {
                 <div style={{ textAlign: 'center', color: '#9090a8', padding: '2rem' }}>Loading course details...</div>
               )}
             </div>
+          )}
+
+          {/* ── Set Password: step 3 (free) or step 4 (paid) ── */}
+          {((step === 3 && isFree) || (step === 4 && !isFree)) && (
+            <form onSubmit={setPasswordStep}>
+              <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Create Password</h2>
+              <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.75rem', lineHeight: 1.5 }}>
+                Set a password to login anytime with your phone or email.
+              </p>
+
+              {error && <div className="alert alert-error" style={{ marginBottom: '1rem', fontSize: '13px' }}>{error}</div>}
+
+              <div className="form-group">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>Password</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPass ? 'text' : 'password'} value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="Minimum 6 characters" autoFocus
+                    style={{ fontSize: '15px', paddingRight: '48px' }}
+                  />
+                  <button type="button" onClick={() => setShowPass(!showPass)} style={{
+                    position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
+                    background: 'none', border: 'none', color: '#9090a8', cursor: 'pointer', fontSize: '16px', padding: 0,
+                  }}>
+                    {showPass ? '🙈' : '👁'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>Confirm Password</label>
+                <input
+                  type={showPass ? 'text' : 'password'} value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password"
+                  style={{ fontSize: '15px' }}
+                />
+              </div>
+
+              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700 }} disabled={loading}>
+                {loading ? 'Setting up...' : 'Create Password & Start Learning →'}
+              </button>
+            </form>
           )}
         </div>
 

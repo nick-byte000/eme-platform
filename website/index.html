@@ -232,8 +232,6 @@
     .stat-l { font-size:12px; color:rgba(255,255,255,0.75); font-weight:500; }
 
     /* ── TRUSTED ── */
-    .trusted { background:var(--bg2); padding:28px 5%; text-align:center; }
-    .trusted p { font-size:13px; color:var(--muted); margin-bottom:18px; }
     .trust-logos { display:flex; justify-content:center; align-items:center; gap:28px; flex-wrap:wrap; }
     .trust-logo {
       background:var(--card); border:1px solid var(--border);
@@ -573,19 +571,6 @@
 
 
 <!-- ── TRUSTED ── -->
-<div class="trusted rv">
-  <p id="lc-trusted_tagline">Trusted by thousands of JEE &amp; NEET aspirants across India</p>
-  <div class="trust-logos">
-    <div class="trust-logo">🏛 IIT Bombay</div>
-    <div class="trust-logo">🏛 IIT Delhi</div>
-    <div class="trust-logo">🏛 IIT Madras</div>
-    <div class="trust-logo">🏥 AIIMS Delhi</div>
-    <div class="trust-logo">🏛 NIT Trichy</div>
-    <div class="trust-logo">🏛 BITS Pilani</div>
-    <div class="trust-logo" style="color:var(--muted)">and many more...</div>
-  </div>
-</div>
-
 <!-- ── HOW IT WORKS ── -->
 <section class="hiw" id="howitworks">
   <div class="sec-hdr rv">
@@ -791,8 +776,7 @@ async function loadLandingContent() {
     set('features_title2', c.features_title2); set('features_desc2', c.features_desc2);
     set('features_title3', c.features_title3); set('features_desc3', c.features_desc3);
     set('features_title4', c.features_title4); set('features_desc4', c.features_desc4);
-    set('trusted_tagline', c.trusted_tagline);
-    set('hiw_tag', c.hiw_tag); set('hiw_h2', c.hiw_h2); set('hiw_desc', c.hiw_desc);
+set('hiw_tag', c.hiw_tag); set('hiw_h2', c.hiw_h2); set('hiw_desc', c.hiw_desc);
     set('hiw_step1_title', c.hiw_step1_title); set('hiw_step1_desc', c.hiw_step1_desc);
     set('hiw_step2_title', c.hiw_step2_title); set('hiw_step2_desc', c.hiw_step2_desc);
     set('hiw_step3_title', c.hiw_step3_title); set('hiw_step3_desc', c.hiw_step3_desc);

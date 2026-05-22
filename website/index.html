@@ -385,7 +385,7 @@
       .subj-search input { width:calc(100% - 74px); }
 
       /* Navbar */
-      .nav-links { display:flex !important; flex-wrap:wrap; gap:2px; justify-content:flex-start; }
+      .nav-links { display:none !important; }
       .nav-actions .btn-getstarted { display:none; }
 
       /* Hero */
@@ -439,7 +439,7 @@
     </p>
     <div class="hero-btns">
       <a href="#courses" class="btn-primary" id="lc-hero_cta_primary">Start Your Journey →</a>
-      <a href="#howitworks" class="btn-outline" id="lc-hero_cta_secondary"><span class="play-icon">▶</span> Watch System</a>
+      <a href="#howitworks" class="btn-outline"><span class="play-icon">▶</span> <span id="lc-hero_cta_secondary">Watch System</span></a>
     </div>
     <div class="hero-social">
       <div class="avatars">
@@ -775,7 +775,7 @@ async function loadLandingContent() {
     const data = await res.json();
     if (!data.success) return;
     const c = data.content;
-    const set = (id, val) => { if (val) { const el = document.getElementById('lc-' + id); if (el) el.textContent = val; } };
+    const set = (id, val) => { if (val) { const el = document.getElementById('lc-' + id); if (el) el.innerHTML = val; } };
     set('hero_badge', c.hero_badge);
     set('hero_sub', c.hero_sub);
     set('hero_cta_primary', c.hero_cta_primary);

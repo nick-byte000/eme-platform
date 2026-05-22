@@ -485,7 +485,7 @@ export default function ConceptsPage() {
   const needsReviewIds = new Set(homeData.needs_review.map(r => r.id));
   const inProgressIds = new Set(homeData.in_progress.map(r => r.concept_id));
 
-  // Show only chapters the student has previously attempted; fallback to predefined categories
+  // Show up to 4 chapters the student has previously attempted; nothing shown for new students
   const recentChapters = (() => {
     const attemptedIds = new Set([
       ...homeData.in_progress.map(ip => ip.concept_id),
@@ -495,8 +495,8 @@ export default function ConceptsPage() {
       concepts.filter(c => attemptedIds.has(c.id)).map(c => c.chapter_name)
     )].filter(Boolean);
   })();
-  const chipsToShow = !loading && recentChapters.length > 0 ? recentChapters : cfg.categories;
-  const chipsAreRecent = !loading && recentChapters.length > 0;
+  const chipsToShow = !loading && recentChapters.length > 0 ? recentChapters.slice(0, 4) : [];
+  const chipsAreRecent = chipsToShow.length > 0;
 
   const ConceptCard = ({ c, errorCount }) => (
     <div style={{
@@ -817,39 +817,39 @@ export default function ConceptsPage() {
               )}
             </div>
 
-            {/* Chapter chips — shows previously attempted chapters or predefined categories */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', padding: '0 1.5rem', marginBottom: '1.5rem' }}>
-              {chipsAreRecent && (
+            {/* Chapter chips — only shown after student has attempted at least one chapter, max 4 */}
+            {chipsAreRecent && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', padding: '0 1.5rem', marginBottom: '1.5rem' }}>
                 <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                   Your Recent Chapters
                 </div>
-              )}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'center', maxWidth: '640px' }}>
-                {chipsToShow.map((cat) => (
-                  <button key={cat} className="cat-chip" onClick={() => setQuery(cat)} style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
-                    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                  }}>
-                    <div style={{
-                      width: '58px', height: '58px', borderRadius: '50%',
-                      background: '#fff', border: `1.5px solid ${cfg.chipBorder}`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.07)',
-                      transition: 'all 0.2s',
-                    }}
-                      onMouseEnter={e => { e.currentTarget.style.background = cfg.chipBg; e.currentTarget.style.borderColor = cfg.primary; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = cfg.chipBorder; }}
-                    >
-                      {getIcon(cat, cfg.primary)}
-                    </div>
-                    <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.88)', textAlign: 'center', lineHeight: 1.3, maxWidth: '80px' }}>
-                      {cat}
-                    </span>
-                  </button>
-                ))}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'center', maxWidth: '640px' }}>
+                  {chipsToShow.map((cat) => (
+                    <button key={cat} className="cat-chip" onClick={() => setQuery(cat)} style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+                      background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                    }}>
+                      <div style={{
+                        width: '58px', height: '58px', borderRadius: '50%',
+                        background: '#fff', border: `1.5px solid ${cfg.chipBorder}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.07)',
+                        transition: 'all 0.2s',
+                      }}
+                        onMouseEnter={e => { e.currentTarget.style.background = cfg.chipBg; e.currentTarget.style.borderColor = cfg.primary; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = cfg.chipBorder; }}
+                      >
+                        {getIcon(cat, cfg.primary)}
+                      </div>
+                      <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.88)', textAlign: 'center', lineHeight: 1.3, maxWidth: '80px' }}>
+                        {cat}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Subject dots */}
             {subjects.length > 1 && (

@@ -27,6 +27,22 @@ function generateOtp() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
+async function enrollTestStudentInAllCourses(studentId) {
+  try {
+    const courses = await pool.query('SELECT id FROM courses WHERE is_active = true');
+    for (const course of courses.rows) {
+      await pool.query(
+        `INSERT INTO student_courses (student_id, course_id, amount_paid, payment_status, enrolled_at)
+         VALUES ($1, $2, 0, 'completed', NOW())
+         ON CONFLICT (student_id, course_id) DO NOTHING`,
+        [studentId, course.id]
+      );
+    }
+  } catch (err) {
+    console.error('[TEST] Auto-enroll failed:', err.message);
+  }
+}
+
 // POST /api/auth/send-otp
 router.post('/send-otp', async (req, res) => {
   try {
@@ -46,6 +62,7 @@ router.post('/send-otp', async (req, res) => {
         );
       }
       const s = result.rows[0];
+      await enrollTestStudentInAllCourses(s.id);
       const token = jwt.sign({ id: s.id, name: s.name }, process.env.JWT_SECRET, { expiresIn: '30d' });
       return res.json({
         success: true, is_new_user: false, sms_sent: false,
@@ -168,6 +185,7 @@ router.post('/login', async (req, res) => {
         result = await pool.query('INSERT INTO students (name, phone) VALUES ($1, $2) RETURNING *', ['Test', '0000000000']);
       }
       const s = result.rows[0];
+      await enrollTestStudentInAllCourses(s.id);
       const token = jwt.sign({ id: s.id, name: s.name }, process.env.JWT_SECRET, { expiresIn: '30d' });
       return res.json({ success: true, token, student: { id: s.id, name: s.name, phone: s.phone, total_points: s.total_points, current_level: s.current_level } });
     }
@@ -213,6 +231,7 @@ router.post('/test-login', async (req, res) => {
       );
     }
     const student = result.rows[0];
+    await enrollTestStudentInAllCourses(student.id);
     const token = jwt.sign({ id: student.id, name: student.name }, process.env.JWT_SECRET, { expiresIn: '30d' });
     res.json({
       success: true,

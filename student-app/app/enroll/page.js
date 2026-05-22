@@ -1,10 +1,12 @@
 'use client';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { saveAuth, isLoggedIn, getToken, getStudent } from '../../src/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
 
 const STEP_LABELS = ['Register', 'Verify OTP', 'Payment'];
 
@@ -24,6 +26,8 @@ function EnrollForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [payStatus, setPayStatus] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
+  const recaptchaRef = useRef(null);
 
   useEffect(() => {
     if (!courseId) { router.replace('/'); return; }
@@ -49,13 +53,14 @@ function EnrollForm() {
     if (!name.trim()) { setError('Please enter your full name'); return; }
     if (!phone.trim() || phone.trim().length < 10) { setError('Please enter a valid 10-digit mobile number'); return; }
     if (!email.trim() || !email.includes('@')) { setError('Please enter a valid email address'); return; }
+    if (RECAPTCHA_SITE_KEY && !captchaToken) { setError('Please complete the CAPTCHA verification'); return; }
     setError('');
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), phone: phone.trim() }),
+        body: JSON.stringify({ name: name.trim(), phone: phone.trim(), captchaToken }),
       });
       const data = await res.json();
       if (!data.success) { setError(data.error || 'Failed to send OTP'); return; }
@@ -63,7 +68,11 @@ function EnrollForm() {
       setDevOtp(data.dev_otp || '');
       setStep(2);
     } catch { setError('Server error. Please try again.'); }
-    finally { setLoading(false); }
+    finally {
+      setLoading(false);
+      recaptchaRef.current?.reset();
+      setCaptchaToken('');
+    }
   };
 
   // ── Step 2: Verify OTP ────────────────────────────────────
@@ -250,7 +259,19 @@ function EnrollForm() {
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" style={{ fontSize: '15px' }} />
               </div>
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, marginTop: '4px' }} disabled={loading}>
+              {RECAPTCHA_SITE_KEY && (
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={RECAPTCHA_SITE_KEY}
+                    onChange={token => setCaptchaToken(token || '')}
+                    onExpired={() => setCaptchaToken('')}
+                    theme="dark"
+                  />
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, marginTop: '4px' }} disabled={loading || (RECAPTCHA_SITE_KEY && !captchaToken)}>
                 {loading ? 'Sending OTP...' : 'Send OTP →'}
               </button>
 

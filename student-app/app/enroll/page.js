@@ -8,8 +8,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
 
-const STEP_LABELS = ['Register', 'Verify OTP', 'Payment'];
-
 function EnrollForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -22,18 +20,27 @@ function EnrollForm() {
   const [otp, setOtp] = useState('');
   const [devOtp, setDevOtp] = useState('');
   const [smsSent, setSmsSent] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPass, setShowPass] = useState(false);
   const [course, setCourse] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [payStatus, setPayStatus] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
+  const [tempToken, setTempToken] = useState('');
+  const [tempStudent, setTempStudent] = useState(null);
   const recaptchaRef = useRef(null);
+
+  const isFree = course?.price === 0;
+  const STEP_LABELS = isFree
+    ? ['Register', 'Verify OTP', 'Set Password']
+    : ['Register', 'Verify OTP', 'Set Password', 'Payment'];
 
   useEffect(() => {
     if (!courseId) { router.replace('/'); return; }
     loadCourse();
-    // If already logged in, skip to payment step
-    if (isLoggedIn()) setStep(3);
+    if (isLoggedIn()) setStep(4);
   }, []);
 
   const loadCourse = async () => {
@@ -47,7 +54,7 @@ function EnrollForm() {
     } catch {}
   };
 
-  // ── Step 1: Send OTP ──────────────────────────────────────
+  // ── Step 1: Send OTP ──
   const sendOtp = async (e) => {
     e.preventDefault();
     if (!name.trim()) { setError('Please enter your full name'); return; }
@@ -75,7 +82,7 @@ function EnrollForm() {
     }
   };
 
-  // ── Step 2: Verify OTP ────────────────────────────────────
+  // ── Step 2: Verify OTP ──
   const verifyOtp = async (e) => {
     e.preventDefault();
     if (!otp.trim() || otp.trim().length !== 6) { setError('Please enter the 6-digit OTP'); return; }
@@ -89,13 +96,57 @@ function EnrollForm() {
       });
       const data = await res.json();
       if (!data.success) { setError(data.error || 'OTP verification failed'); return; }
-      saveAuth(data.token, data.student);
+      setTempToken(data.token);
+      setTempStudent(data.student);
       setStep(3);
     } catch { setError('Server error. Please try again.'); }
     finally { setLoading(false); }
   };
 
-  // ── Step 3: Pay ───────────────────────────────────────────
+  // ── Step 3: Set Password ──
+  const setPasswordStep = async (e) => {
+    e.preventDefault();
+    if (!password.trim() || password.length < 6) { setError('Password must be at least 6 characters'); return; }
+    if (password !== confirmPassword) { setError('Passwords do not match'); return; }
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/auth/set-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tempToken}` },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (!data.success) { setError(data.error || 'Failed to set password'); return; }
+      saveAuth(tempToken, tempStudent);
+      if (isFree) {
+        // Free course — enroll directly without payment
+        await enrollFree();
+      } else {
+        setStep(4);
+      }
+    } catch { setError('Server error. Please try again.'); }
+    finally { setLoading(false); }
+  };
+
+  const enrollFree = async () => {
+    try {
+      const token = tempToken || getToken();
+      const res = await fetch(`${API_URL}/enrollment/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ course_id: courseId }),
+      });
+      const data = await res.json();
+      if (data.success || data.already_enrolled) {
+        router.replace('/concepts');
+      } else {
+        setError(data.error || 'Enrollment failed');
+      }
+    } catch { setError('Enrollment failed. Please try again.'); }
+  };
+
+  // ── Step 4: Payment ──
   const loadRazorpayScript = () =>
     new Promise(resolve => {
       if (window.Razorpay) { resolve(true); return; }
@@ -198,7 +249,7 @@ function EnrollForm() {
             const done = step > s;
             const active = step === s;
             return (
-              <div key={s} style={{ display: 'flex', alignItems: 'center', flex: s < 3 ? 1 : 'none' }}>
+              <div key={s} style={{ display: 'flex', alignItems: 'center', flex: s < STEP_LABELS.length ? 1 : 'none' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                   <div style={{
                     width: '34px', height: '34px', borderRadius: '50%',
@@ -216,7 +267,7 @@ function EnrollForm() {
                     {label}
                   </span>
                 </div>
-                {s < 3 && (
+                {s < STEP_LABELS.length && (
                   <div style={{ flex: 1, height: '2px', margin: '0 6px', marginBottom: '16px', background: done ? '#22c55e' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
                 )}
               </div>
@@ -271,7 +322,8 @@ function EnrollForm() {
                 </div>
               )}
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, marginTop: '4px' }} disabled={loading || (RECAPTCHA_SITE_KEY && !captchaToken)}>
+              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, marginTop: '4px' }}
+                disabled={loading || (RECAPTCHA_SITE_KEY && !captchaToken)}>
                 {loading ? 'Sending OTP...' : 'Send OTP →'}
               </button>
 
@@ -282,7 +334,7 @@ function EnrollForm() {
             </form>
           )}
 
-          {/* ── Step 2: OTP ── */}
+          {/* ── Step 2: Verify OTP ── */}
           {step === 2 && (
             <form onSubmit={verifyOtp}>
               <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Verify Your Number</h2>
@@ -322,13 +374,57 @@ function EnrollForm() {
               </div>
 
               <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700 }} disabled={loading}>
-                {loading ? 'Verifying...' : 'Verify & Continue →'}
+                {loading ? 'Verifying...' : 'Verify →'}
               </button>
             </form>
           )}
 
-          {/* ── Step 3: Payment ── */}
+          {/* ── Step 3: Set Password ── */}
           {step === 3 && (
+            <form onSubmit={setPasswordStep}>
+              <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Create Password</h2>
+              <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.75rem', lineHeight: 1.5 }}>
+                Set a password to login anytime with your phone or email.
+              </p>
+
+              {error && <div className="alert alert-error" style={{ marginBottom: '1rem', fontSize: '13px' }}>{error}</div>}
+
+              <div className="form-group">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>Password</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPass ? 'text' : 'password'} value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="Minimum 6 characters" autoFocus
+                    style={{ fontSize: '15px', paddingRight: '48px' }}
+                  />
+                  <button type="button" onClick={() => setShowPass(!showPass)} style={{
+                    position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
+                    background: 'none', border: 'none', color: '#9090a8', cursor: 'pointer', fontSize: '16px', padding: 0,
+                  }}>
+                    {showPass ? '🙈' : '👁'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>Confirm Password</label>
+                <input
+                  type={showPass ? 'text' : 'password'} value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password"
+                  style={{ fontSize: '15px' }}
+                />
+              </div>
+
+              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700 }} disabled={loading}>
+                {loading ? 'Setting up...' : isFree ? 'Create Account & Enroll →' : 'Continue to Payment →'}
+              </button>
+            </form>
+          )}
+
+          {/* ── Step 4: Payment ── */}
+          {step === 4 && (
             <div>
               <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Complete Your Enrollment</h2>
               <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.5rem', lineHeight: 1.5 }}>
@@ -337,7 +433,6 @@ function EnrollForm() {
 
               {course ? (
                 <>
-                  {/* Course card */}
                   <div style={{ background: 'rgba(108,99,255,0.08)', border: '1px solid rgba(108,99,255,0.2)', borderRadius: '14px', padding: '16px', marginBottom: '1.25rem' }}>
                     <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                       <span style={{
@@ -348,7 +443,6 @@ function EnrollForm() {
                       <span style={{ fontSize: '12px', color: '#9090a8' }}>Class {course.class}</span>
                     </div>
                     <div style={{ fontSize: '16px', fontWeight: 700, color: '#f0f0ff', marginBottom: '10px' }}>{course.name}</div>
-
                     {course.features?.length > 0 && (
                       <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                         {course.features.slice(0, 4).map(f => (
@@ -358,7 +452,6 @@ function EnrollForm() {
                         ))}
                       </ul>
                     )}
-
                     <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                       <span style={{ fontSize: '24px', fontWeight: 900, color: '#f0f0ff' }}>₹{course.price?.toLocaleString('en-IN')}</span>
                       {course.original_price > course.price && (
@@ -379,12 +472,8 @@ function EnrollForm() {
                     </div>
                   )}
 
-                  <button
-                    className="btn-primary"
-                    style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700 }}
-                    onClick={handlePay}
-                    disabled={loading}
-                  >
+                  <button className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700 }}
+                    onClick={handlePay} disabled={loading}>
                     {loading ? 'Processing...' : `Pay ₹${course.price?.toLocaleString('en-IN')} Now →`}
                   </button>
 

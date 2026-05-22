@@ -9,11 +9,10 @@ const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
 
 function LoginForm() {
   const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [devOtp, setDevOtp] = useState('');
-  const [smsSent, setSmsSent] = useState(false);
+  const [tab, setTab] = useState('phone');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState('');
@@ -23,66 +22,37 @@ function LoginForm() {
     if (isLoggedIn()) router.replace('/concepts');
   }, []);
 
-  const sendOtp = async (e) => {
+  const login = async (e) => {
     e.preventDefault();
-    if (!phone.trim() || phone.trim().length < 10) { setError('Please enter a valid 10-digit mobile number'); return; }
+    const label = tab === 'phone' ? 'mobile number' : 'email address';
+    if (!identifier.trim()) { setError(`Please enter your ${label}`); return; }
+    if (!password.trim()) { setError('Please enter your password'); return; }
     if (RECAPTCHA_SITE_KEY && !captchaToken) { setError('Please complete the CAPTCHA verification'); return; }
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/auth/send-otp`, {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone.trim(), name: '_login_', captchaToken }),
+        body: JSON.stringify({ identifier: identifier.trim(), password, captchaToken }),
       });
       const data = await res.json();
       if (!data.success) {
-        if (data.error?.includes('Name is required')) {
-          setError('No account found with this number. Please enroll first.');
-        } else {
-          setError(data.error || 'Failed to send OTP');
-        }
-        return;
-      }
-      if (data.auto_token) {
-        saveAuth(data.auto_token, data.auto_student);
-        router.replace('/concepts');
-        return;
-      }
-      if (data.is_new_user) {
-        setError('No account found. Please enroll first.');
+        setError(data.error || 'Login failed');
         recaptchaRef.current?.reset();
         setCaptchaToken('');
         return;
       }
-      setSmsSent(!!data.sms_sent);
-      setDevOtp(data.dev_otp || '');
-      setStep(2);
-    } catch { setError('Server error. Please try again.'); }
-    finally {
-      setLoading(false);
-      recaptchaRef.current?.reset();
-      setCaptchaToken('');
-    }
-  };
-
-  const verifyOtp = async (e) => {
-    e.preventDefault();
-    if (!otp.trim() || otp.trim().length !== 6) { setError('Please enter the 6-digit OTP'); return; }
-    setError('');
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone.trim(), otp: otp.trim() }),
-      });
-      const data = await res.json();
-      if (!data.success) { setError(data.error || 'OTP verification failed'); return; }
       saveAuth(data.token, data.student);
       router.replace('/concepts');
     } catch { setError('Server error. Please try again.'); }
     finally { setLoading(false); }
+  };
+
+  const switchTab = (t) => {
+    setTab(t);
+    setIdentifier('');
+    setError('');
   };
 
   return (
@@ -100,131 +70,94 @@ function LoginForm() {
           <div style={{ color: '#9090a8', fontSize: '13px' }}>Goal of Infinity Knowledge</div>
         </div>
 
-        {/* Step indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem', gap: 0 }}>
-          {['Mobile', 'Verify OTP'].map((label, i) => {
-            const s = i + 1;
-            const done = step > s;
-            const active = step === s;
-            return (
-              <div key={s} style={{ display: 'flex', alignItems: 'center', flex: s < 2 ? 1 : 'none' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                  <div style={{
-                    width: '32px', height: '32px', borderRadius: '50%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: done ? '14px' : '13px', fontWeight: 700,
-                    background: done ? '#22c55e' : active ? '#6c63ff' : 'rgba(255,255,255,0.08)',
-                    color: done || active ? '#fff' : '#6b6b80',
-                    border: active ? '2px solid #a5a0ff' : 'none',
-                    boxShadow: active ? '0 0 16px rgba(108,99,255,0.4)' : 'none',
-                    transition: 'all 0.3s',
-                  }}>
-                    {done ? '✓' : s}
-                  </div>
-                  <span style={{ fontSize: '10px', color: active ? '#a5a0ff' : done ? '#22c55e' : '#6b6b80', fontWeight: active ? 700 : 400, whiteSpace: 'nowrap' }}>
-                    {label}
-                  </span>
-                </div>
-                {s < 2 && (
-                  <div style={{ flex: 1, height: '2px', margin: '0 6px', marginBottom: '16px', background: done ? '#22c55e' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
         <div className="card" style={{ border: '1px solid rgba(108,99,255,0.2)', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)' }}>
 
-          {/* ── Step 1: Mobile ── */}
-          {step === 1 && (
-            <form onSubmit={sendOtp}>
-              <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Welcome back 👋</h2>
-              <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.75rem', lineHeight: 1.5 }}>
-                Enter your registered mobile number to receive a verification code.
-              </p>
+          <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Welcome back 👋</h2>
+          <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+            Login to continue your learning journey.
+          </p>
 
-              {error && <div className="alert alert-error" style={{ marginBottom: '1rem', fontSize: '13px' }}>{error}</div>}
+          {/* Tabs */}
+          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '4px', marginBottom: '1.5rem' }}>
+            {[{ key: 'phone', label: '📱 Phone' }, { key: 'email', label: '✉ Email' }].map(t => (
+              <button key={t.key} type="button" onClick={() => switchTab(t.key)} style={{
+                flex: 1, padding: '8px', fontSize: '13px', fontWeight: tab === t.key ? 700 : 500,
+                border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s',
+                background: tab === t.key ? '#6c63ff' : 'transparent',
+                color: tab === t.key ? '#fff' : '#9090a8',
+              }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
 
-              <div className="form-group">
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>Mobile Number</label>
+          <form onSubmit={login}>
+            {error && <div className="alert alert-error" style={{ marginBottom: '1rem', fontSize: '13px' }}>{error}</div>}
+
+            <div className="form-group">
+              <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>
+                {tab === 'phone' ? 'Mobile Number' : 'Email Address'}
+              </label>
+              {tab === 'phone' ? (
                 <div style={{ position: 'relative' }}>
                   <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px', color: '#9090a8', fontWeight: 600, pointerEvents: 'none' }}>+91</span>
                   <input
-                    type="tel" value={phone}
-                    onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
+                    type="tel" value={identifier}
+                    onChange={e => setIdentifier(e.target.value.replace(/\D/g, '').substring(0, 10))}
                     placeholder="10-digit mobile number" maxLength={10} autoFocus
                     style={{ paddingLeft: '48px', fontSize: '15px', letterSpacing: '0.05em' }}
                   />
                 </div>
-              </div>
-
-              {RECAPTCHA_SITE_KEY && (
-                <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={RECAPTCHA_SITE_KEY}
-                    onChange={token => setCaptchaToken(token || '')}
-                    onExpired={() => setCaptchaToken('')}
-                    theme="dark"
-                  />
-                </div>
-              )}
-
-              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, marginTop: '4px' }} disabled={loading || (RECAPTCHA_SITE_KEY && !captchaToken)}>
-                {loading ? 'Sending OTP...' : 'Send OTP →'}
-              </button>
-
-              <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '13px', color: '#6b6b80' }}>
-                New student?{' '}
-                <span onClick={() => router.push('/')} style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline' }}>Browse Courses</span>
-              </p>
-            </form>
-          )}
-
-          {/* ── Step 2: OTP ── */}
-          {step === 2 && (
-            <form onSubmit={verifyOtp}>
-              <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Enter OTP</h2>
-              <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-                OTP sent to <strong style={{ color: '#e0e0e0' }}>+91 {phone}</strong>
-                <button type="button" onClick={() => { setStep(1); setOtp(''); setDevOtp(''); setError(''); setCaptchaToken(''); recaptchaRef.current?.reset(); }}
-                  style={{ background: 'none', border: 'none', color: '#6c63ff', cursor: 'pointer', fontSize: '12px', marginLeft: '6px', textDecoration: 'underline' }}>
-                  Change
-                </button>
-              </p>
-
-              {smsSent ? (
-                <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.28)', borderRadius: '12px', padding: '14px 18px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '1.6rem' }}>📱</span>
-                  <div>
-                    <div style={{ fontSize: '13px', color: '#86efac', fontWeight: 700, marginBottom: '2px' }}>OTP sent!</div>
-                    <div style={{ fontSize: '12px', color: '#9090a8' }}>Check SMS on <strong style={{ color: '#e0e0e0' }}>+91 {phone}</strong></div>
-                  </div>
-                </div>
-              ) : devOtp ? (
-                <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '14px 18px', marginBottom: '1.25rem' }}>
-                  <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Dev Mode — OTP</div>
-                  <div style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '0.2em', color: '#fbbf24', fontFamily: 'monospace' }}>{devOtp}</div>
-                </div>
-              ) : null}
-
-              {error && <div className="alert alert-error" style={{ marginBottom: '1rem', fontSize: '13px' }}>{error}</div>}
-
-              <div className="form-group">
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>6-Digit OTP</label>
+              ) : (
                 <input
-                  type="text" value={otp}
-                  onChange={e => setOtp(e.target.value.replace(/\D/g, '').substring(0, 6))}
-                  placeholder="• • • • • •" autoFocus maxLength={6}
-                  style={{ letterSpacing: '0.3em', fontSize: '24px', fontFamily: 'monospace', textAlign: 'center', padding: '14px' }}
+                  type="email" value={identifier}
+                  onChange={e => setIdentifier(e.target.value)}
+                  placeholder="your@email.com" autoFocus
+                  style={{ fontSize: '15px' }}
+                />
+              )}
+            </div>
+
+            <div className="form-group">
+              <label style={{ fontSize: '13px', fontWeight: 600, color: '#c0c0d8' }}>Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPass ? 'text' : 'password'} value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  style={{ fontSize: '15px', paddingRight: '48px' }}
+                />
+                <button type="button" onClick={() => setShowPass(!showPass)} style={{
+                  position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', color: '#9090a8', cursor: 'pointer', fontSize: '16px', padding: 0,
+                }}>
+                  {showPass ? '🙈' : '👁'}
+                </button>
+              </div>
+            </div>
+
+            {RECAPTCHA_SITE_KEY && (
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={token => setCaptchaToken(token || '')}
+                  onExpired={() => setCaptchaToken('')}
+                  theme="dark"
                 />
               </div>
+            )}
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700 }} disabled={loading}>
-                {loading ? 'Verifying...' : 'Login →'}
-              </button>
-            </form>
-          )}
+            <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, marginTop: '4px' }}
+              disabled={loading || (RECAPTCHA_SITE_KEY && !captchaToken)}>
+              {loading ? 'Logging in...' : 'Login →'}
+            </button>
+
+            <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '13px', color: '#6b6b80' }}>
+              New student?{' '}
+              <span onClick={() => router.push('/')} style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline' }}>Browse Courses</span>
+            </p>
+          </form>
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '12px', color: '#6b6b80', marginTop: '1.5rem' }}>

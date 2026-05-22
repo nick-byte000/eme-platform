@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const bcrypt = require('bcryptjs');
 const pool = require('../config/database');
 const { sendOtp: sendSms } = require('../utils/sms');
 require('dotenv').config();
@@ -130,6 +131,63 @@ router.post('/verify-otp', async (req, res) => {
       token,
       student: { id: student.id, name: student.name, phone: student.phone, total_points: student.total_points, current_level: student.current_level }
     });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/auth/set-password  — sets password after OTP verification
+router.post('/set-password', async (req, res) => {
+  try {
+    const { password } = req.body;
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token || !password) return res.status(400).json({ success: false, error: 'Missing fields' });
+    if (password.length < 6) return res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hash = await bcrypt.hash(password, 10);
+    await pool.query('UPDATE students SET password_hash = $1 WHERE id = $2', [hash, decoded.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/auth/login  — password-based login (phone or email)
+router.post('/login', async (req, res) => {
+  try {
+    const { identifier, password, captchaToken } = req.body;
+    if (!identifier || !password) return res.status(400).json({ success: false, error: 'Phone/email and password are required' });
+
+    const captchaOk = await verifyCaptcha(captchaToken);
+    if (!captchaOk) return res.status(400).json({ success: false, error: 'CAPTCHA verification failed. Please try again.' });
+
+    // Test number auto-login
+    if (process.env.TEST_LOGIN_ENABLED === 'true' && identifier.trim() === '0000000000') {
+      let result = await pool.query('SELECT * FROM students WHERE phone = $1', ['0000000000']);
+      if (result.rows.length === 0) {
+        result = await pool.query('INSERT INTO students (name, phone) VALUES ($1, $2) RETURNING *', ['Test', '0000000000']);
+      }
+      const s = result.rows[0];
+      const token = jwt.sign({ id: s.id, name: s.name }, process.env.JWT_SECRET, { expiresIn: '30d' });
+      return res.json({ success: true, token, student: { id: s.id, name: s.name, phone: s.phone, total_points: s.total_points, current_level: s.current_level } });
+    }
+
+    const result = await pool.query(
+      'SELECT * FROM students WHERE phone = $1 OR email = $1',
+      [identifier.trim()]
+    );
+    if (result.rows.length === 0) {
+      return res.status(401).json({ success: false, error: 'No account found. Please enroll in a course first.' });
+    }
+    const student = result.rows[0];
+    if (!student.password_hash) {
+      return res.status(401).json({ success: false, error: 'No password set. Please re-enroll to set your password.' });
+    }
+    const valid = await bcrypt.compare(password, student.password_hash);
+    if (!valid) return res.status(401).json({ success: false, error: 'Incorrect password.' });
+
+    const token = jwt.sign({ id: student.id, name: student.name }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    res.json({ success: true, token, student: { id: student.id, name: student.name, phone: student.phone, total_points: student.total_points, current_level: student.current_level } });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

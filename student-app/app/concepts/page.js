@@ -44,7 +44,9 @@ const Icons = {
 
 const getIcon = (name, color) => {
   const fn = Icons[name];
-  return fn ? fn(color) : <span style={{ fontSize: '20px' }}>◆</span>;
+  if (fn) return fn(color);
+  const initials = name.split(' ').map(w => w[0]).join('').substring(0, 3).toUpperCase();
+  return <span style={{ fontSize: '13px', fontWeight: 800, color, textAlign: 'center', lineHeight: 1 }}>{initials}</span>;
 };
 
 /* ── Background decorations ── */
@@ -483,6 +485,19 @@ export default function ConceptsPage() {
   const needsReviewIds = new Set(homeData.needs_review.map(r => r.id));
   const inProgressIds = new Set(homeData.in_progress.map(r => r.concept_id));
 
+  // Show only chapters the student has previously attempted; fallback to predefined categories
+  const recentChapters = (() => {
+    const attemptedIds = new Set([
+      ...homeData.in_progress.map(ip => ip.concept_id),
+      ...homeData.needs_review.map(r => r.id),
+    ]);
+    return [...new Set(
+      concepts.filter(c => attemptedIds.has(c.id)).map(c => c.chapter_name)
+    )].filter(Boolean);
+  })();
+  const chipsToShow = !loading && recentChapters.length > 0 ? recentChapters : cfg.categories;
+  const chipsAreRecent = !loading && recentChapters.length > 0;
+
   const ConceptCard = ({ c, errorCount }) => (
     <div style={{
       background: '#fff', border: errorCount ? '1px solid #fca5a5' : `1px solid ${cfg.chipBorder}`,
@@ -574,14 +589,14 @@ export default function ConceptsPage() {
       {/* Subject arrows */}
       {enrollmentLoaded && subjects.length > 1 && (
         <>
-          <button onClick={() => changeSubject('left')} style={{
+          <button className="gokoo-subject-arrow" onClick={() => changeSubject('left')} style={{
             position: 'fixed', top: '50%', left: '14px', zIndex: 99, width: '44px', height: '44px',
             borderRadius: '50%', background: '#fff', border: `2px solid ${cfg.chipBorder}`,
             color: cfg.primary, fontSize: '22px', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 4px 16px rgba(0,0,0,0.12)', transition: 'all 0.2s',
           }}>‹</button>
-          <button onClick={() => changeSubject('right')} style={{
+          <button className="gokoo-subject-arrow" onClick={() => changeSubject('right')} style={{
             position: 'fixed', top: '50%', right: '14px', zIndex: 99, width: '44px', height: '44px',
             borderRadius: '50%', background: '#fff', border: `2px solid ${cfg.chipBorder}`,
             color: cfg.primary, fontSize: '22px', cursor: 'pointer',
@@ -802,31 +817,38 @@ export default function ConceptsPage() {
               )}
             </div>
 
-            {/* Category chips — circular icons */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'center', maxWidth: '640px', padding: '0 1.5rem', marginBottom: '1.5rem' }}>
-              {cfg.categories.map((cat) => (
-                <button key={cat} className="cat-chip" onClick={() => setQuery(cat)} style={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
-                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                }}>
-                  <div style={{
-                    width: '58px', height: '58px', borderRadius: '50%',
-                    background: '#fff', border: `1.5px solid ${cfg.chipBorder}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.07)',
-                    transition: 'all 0.2s',
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.background = cfg.chipBg; e.currentTarget.style.borderColor = cfg.primary; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = cfg.chipBorder; }}
-                  >
-                    {getIcon(cat, cfg.primary)}
-                  </div>
-                  <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.88)', textAlign: 'center', lineHeight: 1.3, maxWidth: '80px' }}>
-                    {cat}
-                  </span>
-                </button>
-              ))}
+            {/* Chapter chips — shows previously attempted chapters or predefined categories */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', padding: '0 1.5rem', marginBottom: '1.5rem' }}>
+              {chipsAreRecent && (
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Your Recent Chapters
+                </div>
+              )}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'center', maxWidth: '640px' }}>
+                {chipsToShow.map((cat) => (
+                  <button key={cat} className="cat-chip" onClick={() => setQuery(cat)} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                  }}>
+                    <div style={{
+                      width: '58px', height: '58px', borderRadius: '50%',
+                      background: '#fff', border: `1.5px solid ${cfg.chipBorder}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.07)',
+                      transition: 'all 0.2s',
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.background = cfg.chipBg; e.currentTarget.style.borderColor = cfg.primary; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = cfg.chipBorder; }}
+                    >
+                      {getIcon(cat, cfg.primary)}
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.88)', textAlign: 'center', lineHeight: 1.3, maxWidth: '80px' }}>
+                      {cat}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Subject dots */}

@@ -334,3 +334,34 @@ button:disabled {
   color: #facc15;
   margin: 1rem 0;
 }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 640px) {
+  html, body { overflow-x: hidden; }
+
+  /* Navbar: wrap into brand+actions row + links row below */
+  .gokoo-navbar {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    padding: 0.6rem 1rem !important;
+    gap: 6px !important;
+  }
+  .gokoo-nav-links {
+    order: 2;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    gap: 2px !important;
+    padding: 0 0 3px !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .gokoo-nav-links::-webkit-scrollbar { display: none; }
+  .gokoo-nav-name { display: none !important; }
+
+  /* Subject side arrows: hidden on mobile (use dots navigation instead) */
+  .gokoo-subject-arrow { display: none !important; }
+
+  /* General page padding */
+  .container { padding: 1rem !important; }
+}

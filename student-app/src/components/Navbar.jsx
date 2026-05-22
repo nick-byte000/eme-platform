@@ -40,7 +40,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav style={{
+    <nav className="gokoo-navbar" style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 1.75rem', height: '58px',
       background: 'rgba(255,255,255,0.97)',
@@ -56,12 +56,13 @@ export default function Navbar() {
         textDecoration: 'none',
         background: cfg.gradient,
         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+        flexShrink: 0,
       }}>
         GOKOO
       </Link>
 
-      {/* Nav links */}
-      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+      {/* Nav links — moves to second row on mobile via CSS */}
+      <div className="gokoo-nav-links" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
         {links.map(l => {
           const isActive = pathname === l.href || (l.href !== '/concepts' && pathname.startsWith(l.href)) || (l.href === '/concepts' && (pathname === '/concepts' || pathname.startsWith('/concepts/')));
           return (
@@ -70,11 +71,11 @@ export default function Navbar() {
               onMouseLeave={() => setHovered(null)}
               style={{
                 color: isActive ? cfg.primary : hovered === l.href ? cfg.primary : '#6b7280',
-                textDecoration: 'none', padding: '6px 16px', borderRadius: '8px',
-                fontSize: '14px', fontWeight: isActive ? 700 : 500,
+                textDecoration: 'none', padding: '6px 13px', borderRadius: '8px',
+                fontSize: '13px', fontWeight: isActive ? 700 : 500,
                 background: isActive ? cfg.chipBg : hovered === l.href ? `${cfg.chipBg}88` : 'transparent',
                 border: isActive ? `1.5px solid ${cfg.chipBorder}` : '1.5px solid transparent',
-                transition: 'all 0.15s',
+                transition: 'all 0.15s', whiteSpace: 'nowrap',
               }}>
               {l.label}
             </Link>
@@ -83,22 +84,24 @@ export default function Navbar() {
       </div>
 
       {/* Right: points + name + logout */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
         <span style={{
           background: cfg.chipBg, color: cfg.primary,
           border: `1.5px solid ${cfg.chipBorder}`,
-          padding: '4px 12px', borderRadius: '20px',
-          fontSize: '13px', fontWeight: 700,
+          padding: '4px 10px', borderRadius: '20px',
+          fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap',
         }}>
           {student.total_points ?? 0} pts
         </span>
-        <span style={{ color: '#374151', fontSize: '13px', fontWeight: 500 }}>{student.name}</span>
+        <span className="gokoo-nav-name" style={{ color: '#374151', fontSize: '13px', fontWeight: 500, maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {student.name}
+        </span>
         <button onClick={logout} style={{
-          padding: '5px 12px', fontSize: '12px', fontWeight: 500,
+          padding: '5px 10px', fontSize: '12px', fontWeight: 500,
           background: 'transparent',
           border: `1.5px solid ${cfg.chipBorder}`,
           color: '#6b7280', borderRadius: '8px', cursor: 'pointer',
-          transition: 'all 0.15s',
+          transition: 'all 0.15s', whiteSpace: 'nowrap',
         }}
           onMouseEnter={e => { e.currentTarget.style.background = cfg.chipBg; e.currentTarget.style.color = cfg.primary; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}

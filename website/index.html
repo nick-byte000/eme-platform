@@ -370,6 +370,34 @@
       .flow-steps { gap:4px; }
       .flow-step { min-width:60px; }
       .flow-arrow { display:none; }
+
+      /* Courses grid */
+      #courses-grid { grid-template-columns:1fr !important; padding:0; }
+      .ladder-sec { padding:50px 4%; }
+      .sec-hdr { margin-bottom:32px; }
+
+      /* About section: stack columns */
+      #about > div:nth-child(2) { grid-template-columns:1fr !important; gap:28px !important; }
+
+      /* Subjects bar */
+      .subjects-bar { flex-direction:column; align-items:flex-start; gap:10px; }
+      .subj-search { margin-left:0; width:100%; }
+      .subj-search input { width:calc(100% - 74px); }
+
+      /* Navbar */
+      .nav-links { display:flex !important; flex-wrap:wrap; gap:2px; justify-content:flex-start; }
+      .nav-actions .btn-getstarted { display:none; }
+
+      /* Hero */
+      .hero { padding:80px 4% 40px; }
+      .hero h1 { font-size:clamp(1.9rem,8vw,2.8rem); }
+
+      /* Footer */
+      .ft { gap:24px; }
+
+      /* General padding */
+      .hiw, .features, .testi-sec { padding:50px 4%; }
+      .cta-sec { padding:60px 4%; }
     }
   </style>
 </head>
@@ -596,7 +624,7 @@
     <h2 id="lc-courses_h2">Choose Your Course</h2>
     <p id="lc-courses_desc">Structured programs for JEE &amp; NEET aspirants. Pick your class and exam — start mastering today.</p>
   </div>
-  <div id="courses-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1200px;margin:0 auto;">
+  <div id="courses-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;max-width:1200px;margin:0 auto;width:100%;">
     <div style="text-align:center;color:var(--muted);padding:40px;grid-column:1/-1">Loading courses...</div>
   </div>
 </section>
@@ -707,7 +735,7 @@ async function loadCourses() {
     const data = await res.json();
     const courses = data.courses || [];
     if (!courses.length) { grid.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;grid-column:1/-1">No courses available yet.</div>'; return; }
-    grid.style.gridTemplateColumns = `repeat(${courses.length}, 1fr)`;
+    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
     grid.innerHTML = courses.map(c => {
       const color = EXAM_COLORS[c.exam_type] || '#6c5ce7';
       const price = c.price === 0 ? 'Contact Us' : '₹' + Number(c.price).toLocaleString('en-IN');

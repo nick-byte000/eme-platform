@@ -1,9 +1,11 @@
 'use client';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { saveAuth, isLoggedIn } from '../../src/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
 
 function LoginForm() {
   const router = useRouter();
@@ -14,6 +16,8 @@ function LoginForm() {
   const [smsSent, setSmsSent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
+  const recaptchaRef = useRef(null);
 
   useEffect(() => {
     if (isLoggedIn()) router.replace('/concepts');
@@ -22,13 +26,14 @@ function LoginForm() {
   const sendOtp = async (e) => {
     e.preventDefault();
     if (!phone.trim() || phone.trim().length < 10) { setError('Please enter a valid 10-digit mobile number'); return; }
+    if (RECAPTCHA_SITE_KEY && !captchaToken) { setError('Please complete the CAPTCHA verification'); return; }
     setError('');
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone.trim(), name: '_login_' }),
+        body: JSON.stringify({ phone: phone.trim(), name: '_login_', captchaToken }),
       });
       const data = await res.json();
       if (!data.success) {
@@ -41,13 +46,19 @@ function LoginForm() {
       }
       if (data.is_new_user) {
         setError('No account found. Please enroll first.');
+        recaptchaRef.current?.reset();
+        setCaptchaToken('');
         return;
       }
       setSmsSent(!!data.sms_sent);
       setDevOtp(data.dev_otp || '');
       setStep(2);
     } catch { setError('Server error. Please try again.'); }
-    finally { setLoading(false); }
+    finally {
+      setLoading(false);
+      recaptchaRef.current?.reset();
+      setCaptchaToken('');
+    }
   };
 
   const verifyOtp = async (e) => {
@@ -142,7 +153,19 @@ function LoginForm() {
                 </div>
               </div>
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, marginTop: '4px' }} disabled={loading}>
+              {RECAPTCHA_SITE_KEY && (
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={RECAPTCHA_SITE_KEY}
+                    onChange={token => setCaptchaToken(token || '')}
+                    onExpired={() => setCaptchaToken('')}
+                    theme="dark"
+                  />
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, marginTop: '4px' }} disabled={loading || (RECAPTCHA_SITE_KEY && !captchaToken)}>
                 {loading ? 'Sending OTP...' : 'Send OTP →'}
               </button>
 
@@ -159,7 +182,7 @@ function LoginForm() {
               <h2 style={{ fontSize: '19px', fontWeight: 800, marginBottom: '6px', color: '#f0f0ff' }}>Enter OTP</h2>
               <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                 OTP sent to <strong style={{ color: '#e0e0e0' }}>+91 {phone}</strong>
-                <button type="button" onClick={() => { setStep(1); setOtp(''); setDevOtp(''); setError(''); }}
+                <button type="button" onClick={() => { setStep(1); setOtp(''); setDevOtp(''); setError(''); setCaptchaToken(''); recaptchaRef.current?.reset(); }}
                   style={{ background: 'none', border: 'none', color: '#6c63ff', cursor: 'pointer', fontSize: '12px', marginLeft: '6px', textDecoration: 'underline' }}>
                   Change
                 </button>

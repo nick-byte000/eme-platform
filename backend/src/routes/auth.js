@@ -1,11 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 const pool = require('../config/database');
 const { sendOtp: sendSms } = require('../utils/sms');
 require('dotenv').config();
 
 const pendingOtps = new Map();
+
+async function verifyCaptcha(token) {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) return true; // skip in dev when key not set
+  if (!token) return false;
+  try {
+    const { data } = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`
+    );
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
 
 function generateOtp() {
   return String(Math.floor(100000 + Math.random() * 900000));
@@ -14,8 +29,11 @@ function generateOtp() {
 // POST /api/auth/send-otp
 router.post('/send-otp', async (req, res) => {
   try {
-    const { phone, name } = req.body;
+    const { phone, name, captchaToken } = req.body;
     if (!phone) return res.status(400).json({ success: false, error: 'Phone is required' });
+
+    const captchaOk = await verifyCaptcha(captchaToken);
+    if (!captchaOk) return res.status(400).json({ success: false, error: 'CAPTCHA verification failed. Please try again.' });
 
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);

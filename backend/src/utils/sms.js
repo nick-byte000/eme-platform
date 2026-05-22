@@ -1,7 +1,11 @@
 const axios = require('axios');
 
 async function sendOtp(phone, otp) {
-  // MSG91
+  // 2Factor (primary)
+  if (process.env.TWOFACTOR_API_KEY) {
+    return sendVia2Factor(phone, otp);
+  }
+  // MSG91 fallback
   if (process.env.MSG91_AUTH_KEY && process.env.MSG91_TEMPLATE_ID) {
     return sendViaMSG91(phone, otp);
   }
@@ -11,6 +15,22 @@ async function sendOtp(phone, otp) {
   }
   console.log('[SMS] No SMS provider configured — dev mode');
   return { sent: false, reason: 'no_key' };
+}
+
+async function sendVia2Factor(phone, otp) {
+  console.log(`[SMS] Sending OTP to ${phone} via 2Factor...`);
+  try {
+    const { data } = await axios.get(
+      `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${phone}/${otp}/GOKOO`
+    );
+    console.log('[SMS] 2Factor response:', JSON.stringify(data));
+    if (data.Status === 'Success') return { sent: true };
+    console.error('[SMS] 2Factor failed:', data);
+    return { sent: false, error: data.Details || '2Factor send failed' };
+  } catch (err) {
+    console.error('[SMS] 2Factor error:', err.response?.data || err.message);
+    return { sent: false, error: err.message };
+  }
 }
 
 async function sendViaMSG91(phone, otp) {

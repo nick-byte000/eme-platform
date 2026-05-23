@@ -42,7 +42,7 @@ export default function LoginPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem', gap: '8px' }}>
-          <GokooLogo size="lg" />
+          <GokooLogo size="lg" dark />
           <span style={{ fontSize: '12px', fontWeight: 600, color: '#9090a8', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Admin Panel</span>
         </div>
         

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { saveAuth, isLoggedIn } from '../../src/lib/auth';
+import GokooLogo from '../../src/components/GokooLogo';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
@@ -59,15 +60,8 @@ function LoginForm() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'linear-gradient(135deg,#08061a 0%,#12103a 100%)' }}>
       <div style={{ width: '100%', maxWidth: '400px' }}>
 
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{
-            fontSize: '2.8rem', fontWeight: 900, letterSpacing: '-0.02em',
-            background: 'linear-gradient(135deg, #c4c0ff 0%, #6c63ff 50%, #8b5cf6 100%)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            marginBottom: '4px',
-          }}>GOKOO</div>
-          <div style={{ color: '#9090a8', fontSize: '13px' }}>Goal of Infinity Knowledge</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2.5rem' }}>
+          <GokooLogo size="lg" dark />
         </div>
 
         <div className="card" style={{ border: '1px solid rgba(108,99,255,0.2)', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)' }}>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getStudent, clearAuth } from '../lib/auth';
+import GokooLogo from './GokooLogo';
 
 const SUBJECT_CONFIG = {
   Physics:     { primary: '#6c5ce7', chipBg: '#ede9ff', chipBorder: '#c4b9ff', gradient: 'linear-gradient(135deg, #4776e6, #6c5ce7)' },
@@ -51,14 +52,8 @@ export default function Navbar() {
     }}>
 
       {/* Brand */}
-      <Link href="/concepts" style={{
-        fontWeight: 900, fontSize: '17px', letterSpacing: '-0.02em',
-        textDecoration: 'none',
-        background: cfg.gradient,
-        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-        flexShrink: 0,
-      }}>
-        GOKOO
+      <Link href="/concepts" style={{ textDecoration: 'none', flexShrink: 0 }}>
+        <GokooLogo size="sm" />
       </Link>
 
       {/* Nav links — moves to second row on mobile via CSS */}

@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { saveAuth, isLoggedIn, getToken, getStudent } from '../../src/lib/auth';
+import GokooLogo from '../../src/components/GokooLogo';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -270,13 +271,8 @@ function EnrollForm() {
       <div style={{ width: '100%', maxWidth: '480px' }}>
 
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            fontSize: '2.2rem', fontWeight: 900, letterSpacing: '-0.02em',
-            background: 'linear-gradient(135deg, #c4c0ff 0%, #6c63ff 50%, #8b5cf6 100%)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-          }}>GOKOO</div>
-          <div style={{ color: '#9090a8', fontSize: '12px' }}>Goal of Infinity Knowledge</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+          <GokooLogo size="md" dark />
         </div>
 
         {/* Step bar */}

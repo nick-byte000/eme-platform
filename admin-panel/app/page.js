@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import GokooLogo from '../src/components/GokooLogo';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -40,7 +41,10 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
-        <h1 style={{ marginBottom: '2rem', textAlign: 'center', fontSize: '24px', fontWeight: '700' }}>GOKOO Admin Panel</h1>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem', gap: '8px' }}>
+          <GokooLogo size="lg" />
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#9090a8', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Admin Panel</span>
+        </div>
         
         {error && <div className="alert alert-error">{error}</div>}
         

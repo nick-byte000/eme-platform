@@ -399,6 +399,7 @@ export default function ConceptsPage() {
   const [focused, setFocused] = useState(false);
   const [unlocking, setUnlocking] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [openChapters, setOpenChapters] = useState(new Set());
   const inputRef = useRef(null);
   const busy = useRef(false);
   const contentRef = useRef(null);
@@ -512,6 +513,24 @@ export default function ConceptsPage() {
   })();
   const chipsToShow = !loading && recentChapters.length > 0 ? recentChapters.slice(0, 4) : [];
   const chipsAreRecent = chipsToShow.length > 0;
+
+  // Group concepts by chapter_name, preserving order
+  const chapterGroups = (() => {
+    const map = new Map();
+    concepts.forEach(c => {
+      if (!map.has(c.chapter_name)) map.set(c.chapter_name, []);
+      map.get(c.chapter_name).push(c);
+    });
+    return [...map.entries()].map(([chapter, items]) => ({ chapter, items }));
+  })();
+
+  const toggleChapter = (chapter) => {
+    setOpenChapters(prev => {
+      const next = new Set(prev);
+      next.has(chapter) ? next.delete(chapter) : next.add(chapter);
+      return next;
+    });
+  };
 
   const ConceptCard = ({ c, errorCount }) => (
     <div style={{
@@ -840,7 +859,7 @@ export default function ConceptsPage() {
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'center', maxWidth: '640px' }}>
                   {chipsToShow.map((cat) => (
-                    <button key={cat} className="cat-chip" onClick={() => setQuery(cat)} style={{
+                    <button key={cat} className="cat-chip" onClick={() => { setOpenChapters(prev => new Set([...prev, cat])); setTimeout(() => document.getElementById(`chapter-${cat}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100); }} style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
                       background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                       transition: 'transform 0.2s, box-shadow 0.2s',
@@ -971,18 +990,60 @@ export default function ConceptsPage() {
 
               <section>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-                  <h2 style={{ fontSize: '15px', fontWeight: 700, color: cfg.primary, paddingLeft: '10px', borderLeft: `3px solid ${cfg.primary}` }}>{activeSubject ? `${activeSubject} Topics` : 'All Topics'}</h2>
-                  <span style={{ fontSize: '12px', color: cfg.primary, fontWeight: 700, background: cfg.chipBg, padding: '2px 10px', borderRadius: '9999px' }}>{concepts.length}</span>
+                  <h2 style={{ fontSize: '15px', fontWeight: 700, color: cfg.primary, paddingLeft: '10px', borderLeft: `3px solid ${cfg.primary}` }}>{activeSubject ? `${activeSubject} Chapters` : 'All Chapters'}</h2>
+                  <span style={{ fontSize: '12px', color: cfg.primary, fontWeight: 700, background: cfg.chipBg, padding: '2px 10px', borderRadius: '9999px' }}>{chapterGroups.length}</span>
                 </div>
-                {concepts.length === 0 ? (
+                {chapterGroups.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '3.5rem', background: '#fff', borderRadius: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                     <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>{cfg.icon}</div>
                     <div style={{ color: '#1a1035', fontWeight: 600, marginBottom: '6px', fontSize: '16px' }}>No {activeSubject} topics yet</div>
                     <div style={{ color: '#8888aa', fontSize: '13px' }}>Topics for this subject are coming soon.</div>
                   </div>
                 ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(270px,1fr))', gap: '1rem' }}>
-                    {concepts.map(c => { const rev = homeData.needs_review.find(r => r.id === c.id); return <ConceptCard key={c.id} c={c} errorCount={parseInt(rev?.error_count || 0)} />; })}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {chapterGroups.map(({ chapter, items }) => {
+                      const isOpen = openChapters.has(chapter);
+                      const chapterErrors = items.reduce((sum, c) => {
+                        const rev = homeData.needs_review.find(r => r.id === c.id);
+                        return sum + (rev ? parseInt(rev.error_count || 0) : 0);
+                      }, 0);
+                      const completedCount = items.filter(c => inProgressIds.has(c.id) || needsReviewIds.has(c.id)).length;
+                      return (
+                        <div key={chapter} id={`chapter-${chapter}`} style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: `1px solid ${isOpen ? cfg.chipBorder : '#e8e8f0'}`, transition: 'all 0.2s' }}>
+                          {/* Chapter header row */}
+                          <div onClick={() => toggleChapter(chapter)} style={{
+                            display: 'flex', alignItems: 'center', gap: '14px',
+                            padding: '16px 20px', background: isOpen ? cfg.chipBg : '#fff',
+                            cursor: 'pointer', transition: 'background 0.2s',
+                          }}>
+                            <div style={{
+                              width: '38px', height: '38px', borderRadius: '10px', flexShrink: 0,
+                              background: cfg.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: '16px', color: '#fff', fontWeight: 800,
+                            }}>
+                              {chapter?.charAt(0)?.toUpperCase() || '?'}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 700, fontSize: '15px', color: '#1a1035', lineHeight: 1.3 }}>{chapter}</div>
+                              <div style={{ fontSize: '12px', color: '#8888aa', marginTop: '2px' }}>
+                                {items.length} subtopic{items.length !== 1 ? 's' : ''}
+                                {completedCount > 0 && <span style={{ marginLeft: '8px', color: cfg.primary, fontWeight: 600 }}>· {completedCount} attempted</span>}
+                                {chapterErrors > 0 && <span style={{ marginLeft: '8px', color: '#ef4444', fontWeight: 600 }}>· {chapterErrors} error{chapterErrors !== 1 ? 's' : ''}</span>}
+                              </div>
+                            </div>
+                            <div style={{ color: cfg.primary, fontSize: '20px', fontWeight: 700, transition: 'transform 0.25s', transform: isOpen ? 'rotate(90deg)' : 'none', flexShrink: 0 }}>›</div>
+                          </div>
+                          {/* Subtopics grid */}
+                          {isOpen && (
+                            <div style={{ padding: '16px', background: '#fafafe', borderTop: `1px solid ${cfg.chipBorder}` }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(250px,1fr))', gap: '12px' }}>
+                                {items.map(c => { const rev = homeData.needs_review.find(r => r.id === c.id); return <ConceptCard key={c.id} c={c} errorCount={parseInt(rev?.error_count || 0)} />; })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </section>

@@ -135,7 +135,7 @@ export default function LadderStepsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
+    const token = sessionStorage.getItem('adminToken');
     if (!token) router.push('/');
   }, [router]);
 
@@ -172,7 +172,7 @@ export default function LadderStepsPage() {
       <nav className="nav">
         <a href="/dashboard" style={{ textDecoration: 'none', color: '#9090a8' }}>Dashboard</a>
         <a href="/ladder-steps" style={{ textDecoration: 'none', color: '#6c63ff' }}>Ladder Steps</a>
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
       </nav>
 
       <div className="container">

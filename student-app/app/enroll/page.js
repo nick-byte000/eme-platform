@@ -40,6 +40,15 @@ function EnrollForm() {
   useEffect(() => {
     if (!courseId) { router.replace('/'); return; }
     loadCourse();
+    // Restore temp token if page was refreshed mid-enrollment
+    const savedToken = sessionStorage.getItem('enrollTempToken');
+    const savedStudent = sessionStorage.getItem('enrollTempStudent');
+    if (savedToken && savedStudent) {
+      try {
+        setTempToken(savedToken);
+        setTempStudent(JSON.parse(savedStudent));
+      } catch {}
+    }
   }, []);
 
   const loadCourse = async () => {
@@ -77,7 +86,7 @@ function EnrollForm() {
   const sendOtp = async (e) => {
     e.preventDefault();
     if (!name.trim()) { setError('Please enter your full name'); return; }
-    if (!phone.trim() || phone.trim().length < 10) { setError('Please enter a valid 10-digit mobile number'); return; }
+    if (!phone.trim() || phone.trim().length !== 10 || !/^[6-9]\d{9}$/.test(phone.trim())) { setError('Please enter a valid 10-digit Indian mobile number'); return; }
     if (!email.trim() || !email.includes('@')) { setError('Please enter a valid email address'); return; }
     if (RECAPTCHA_SITE_KEY && !captchaToken) { setError('Please complete the CAPTCHA verification'); return; }
     setError('');
@@ -117,6 +126,8 @@ function EnrollForm() {
       if (!data.success) { setError(data.error || 'OTP verification failed'); return; }
       setTempToken(data.token);
       setTempStudent(data.student);
+      sessionStorage.setItem('enrollTempToken', data.token);
+      sessionStorage.setItem('enrollTempStudent', JSON.stringify(data.student));
       setStep(3);
     } catch { setError('Server error. Please try again.'); }
     finally { setLoading(false); }
@@ -138,6 +149,8 @@ function EnrollForm() {
       });
       const data = await res.json();
       if (!data.success) { setError(data.error || 'Failed to set password'); return; }
+      sessionStorage.removeItem('enrollTempToken');
+      sessionStorage.removeItem('enrollTempStudent');
       if (isFree) {
         // Free course — save auth then enroll
         saveAuth(token, tempStudent);
@@ -220,8 +233,9 @@ function EnrollForm() {
             });
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
-              // Save auth now, then go to set-password step
               saveAuth(token, student);
+              sessionStorage.removeItem('enrollTempToken');
+              sessionStorage.removeItem('enrollTempStudent');
               setPayStatus('Payment successful! Set your password to continue...');
               setTimeout(() => { setPayStatus(''); setStep(4); setLoading(false); }, 1200);
             } else {

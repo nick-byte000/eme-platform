@@ -19,7 +19,7 @@ router.get('/my-course', auth, async (req, res) => {
     );
     res.json({ success: true, enrollment: result.rows[0] || null });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -37,15 +37,35 @@ router.post('/create-order', auth, async (req, res) => {
     );
     if (existing.rows.length > 0) return res.json({ success: true, already_enrolled: true });
 
+    // For free courses — enroll immediately without payment
+    if (course.rows[0].price === 0) {
+      await pool.query(
+        `INSERT INTO student_courses (student_id, course_id, amount_paid, payment_status, enrolled_at)
+         VALUES ($1, $2, 0, 'completed', NOW())
+         ON CONFLICT (student_id, course_id) DO NOTHING`,
+        [req.student.id, course_id]
+      );
+      return res.json({ success: true, already_enrolled: false, free: true });
+    }
+
     const order = await razorpay.orders.create({
       amount: course.rows[0].price * 100, // paise
       currency: 'INR',
       receipt: `order_${req.student.id}_${course_id}_${Date.now()}`,
     });
 
+    // Pre-insert pending row so webhook can find it by order_id
+    await pool.query(
+      `INSERT INTO student_courses (student_id, course_id, amount_paid, payment_status, razorpay_order_id)
+       VALUES ($1, $2, $3, 'pending', $4)
+       ON CONFLICT (student_id, course_id) DO UPDATE
+       SET payment_status = 'pending', razorpay_order_id = $4`,
+      [req.student.id, course_id, course.rows[0].price, order.id]
+    );
+
     res.json({ success: true, order, course: course.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -75,7 +95,47 @@ router.post('/verify-payment', auth, async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
+  }
+});
+
+// POST /api/enrollment/webhook — Razorpay server-to-server payment confirmation
+// Must be registered in Razorpay Dashboard → Webhooks → URL: https://your-api/api/enrollment/webhook
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  try {
+    const signature = req.headers['x-razorpay-signature'];
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (!secret) return res.status(200).json({ received: true }); // skip if not configured
+
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(req.body)
+      .digest('hex');
+
+    if (expectedSignature !== signature) {
+      return res.status(400).json({ error: 'Invalid webhook signature' });
+    }
+
+    const event = JSON.parse(req.body.toString());
+
+    if (event.event === 'payment.captured') {
+      const payment = event.payload.payment.entity;
+      const orderId = payment.order_id;
+
+      // Find pending enrollment by razorpay_order_id and mark completed
+      await pool.query(
+        `UPDATE student_courses
+         SET payment_status = 'completed', razorpay_payment_id = $1, enrolled_at = NOW()
+         WHERE razorpay_order_id = $2 AND payment_status != 'completed'`,
+        [payment.id, orderId]
+      );
+      console.log(`[Webhook] Payment captured for order ${orderId}`);
+    }
+
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error('[Webhook] Error:', err.message);
+    res.status(500).json({ error: 'Webhook processing failed' });
   }
 });
 

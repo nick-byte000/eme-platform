@@ -153,7 +153,10 @@ function LoginForm() {
               {loading ? 'Logging in...' : 'Login →'}
             </button>
 
-            <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '13px', color: '#6b6b80' }}>
+            <p style={{ textAlign: 'center', marginTop: '0.75rem', fontSize: '13px', color: '#6b6b80' }}>
+              <span onClick={() => router.push('/forgot-password')} style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline' }}>Forgot password?</span>
+            </p>
+            <p style={{ textAlign: 'center', marginTop: '0.4rem', fontSize: '13px', color: '#6b6b80' }}>
               New student?{' '}
               <span onClick={() => router.push('/')} style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline' }}>Browse Courses</span>
             </p>

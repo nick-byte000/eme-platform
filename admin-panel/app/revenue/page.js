@@ -19,7 +19,7 @@ export default function RevenuePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!localStorage.getItem('adminToken')) router.push('/');
+    if (!sessionStorage.getItem('adminToken')) router.push('/');
     loadRevenue();
   }, []);
 
@@ -49,7 +49,7 @@ export default function RevenuePage() {
             {l.label}
           </a>
         ))}
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>
           Sign Out
         </button>
       </nav>

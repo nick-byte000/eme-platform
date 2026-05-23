@@ -12,7 +12,7 @@ router.post('/concepts', adminAuth, async (req, res) => {
     );
     res.json({ success: true, concept: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -26,7 +26,7 @@ router.put('/concepts/:id', adminAuth, async (req, res) => {
     );
     res.json({ success: true, concept: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -36,7 +36,7 @@ router.delete('/concepts/:id', adminAuth, async (req, res) => {
     await pool.query('UPDATE concepts SET is_active = false WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -49,7 +49,7 @@ router.post('/boss-questions', adminAuth, async (req, res) => {
     );
     res.json({ success: true, boss_question: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -85,7 +85,7 @@ router.post('/ladder-steps', adminAuth, async (req, res) => {
     );
     res.json({ success: true, step: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -99,7 +99,7 @@ router.put('/ladder-steps/:id', adminAuth, async (req, res) => {
     await pool.query('UPDATE ladder_steps SET ' + setClause + ', version = version + 1 WHERE id = $' + (keys.length+1), [...values, id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -109,7 +109,7 @@ router.delete('/ladder-steps/:id', adminAuth, async (req, res) => {
     await pool.query('UPDATE ladder_steps SET is_active = false WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -118,7 +118,7 @@ router.get('/clones/pending', adminAuth, async (req, res) => {
     const result = await pool.query('SELECT cq.*, ls.concept_tag, ls.question_text as original_question FROM clone_questions cq JOIN ladder_steps ls ON cq.original_step_id = ls.id WHERE cq.is_approved = false ORDER BY cq.created_at DESC');
     res.json({ success: true, clones: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -128,7 +128,7 @@ router.put('/clones/:id/approve', adminAuth, async (req, res) => {
     await pool.query('UPDATE clone_questions SET is_approved = true, is_prefetch_ready = true WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -138,7 +138,7 @@ router.put('/clones/:id/reject', adminAuth, async (req, res) => {
     await pool.query('DELETE FROM clone_questions WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -151,7 +151,7 @@ router.get('/analytics/heatmap/:bossQuestionId', adminAuth, async (req, res) => 
     );
     res.json({ success: true, heatmap: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -171,7 +171,7 @@ router.get('/question-sets', adminAuth, async (req, res) => {
     }));
     res.json({ success: true, sets });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -182,7 +182,7 @@ router.put('/boss-questions/:id', adminAuth, async (req, res) => {
     await pool.query('UPDATE boss_questions SET title=$1, question_text=$2, question_image_url=$3 WHERE id=$4', [title, question_text, question_image_url || null, id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -191,7 +191,7 @@ router.get('/concepts-list', adminAuth, async (req, res) => {
     const result = await pool.query('SELECT * FROM concepts WHERE is_active = true ORDER BY id DESC');
     res.json({ success: true, concepts: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -200,7 +200,7 @@ router.get('/students', adminAuth, async (req, res) => {
     const result = await pool.query('SELECT s.*, COUNT(sp.id) as ladders_completed FROM students s LEFT JOIN student_progress sp ON s.id = sp.student_id AND sp.is_completed = true GROUP BY s.id ORDER BY s.total_points DESC');
     res.json({ success: true, students: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -214,7 +214,7 @@ router.delete('/students/:id', adminAuth, async (req, res) => {
     await pool.query('DELETE FROM students WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -226,7 +226,7 @@ router.get('/students/:id', adminAuth, async (req, res) => {
     const attempts = await pool.query('SELECT COUNT(*) as total, SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) as correct FROM student_attempts WHERE student_id = $1', [id]);
     res.json({ success: true, student: student.rows[0], progress: progress.rows, attempts: attempts.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -256,7 +256,7 @@ router.post('/cloudinary-signature', adminAuth, (req, res) => {
       folder,
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -267,7 +267,7 @@ router.get('/library', adminAuth, async (req, res) => {
     const result = await pool.query('SELECT * FROM physics_library WHERE is_active = true ORDER BY sort_order, chapter_name');
     res.json({ success: true, chapters: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -280,7 +280,7 @@ router.post('/library', adminAuth, async (req, res) => {
     );
     res.json({ success: true, chapter: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -294,7 +294,7 @@ router.put('/library/:id', adminAuth, async (req, res) => {
     );
     res.json({ success: true, chapter: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -304,7 +304,7 @@ router.delete('/library/:id', adminAuth, async (req, res) => {
     await pool.query('UPDATE physics_library SET is_active = false WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -332,7 +332,7 @@ router.get('/courses', adminAuth, async (req, res) => {
     const result = await pool.query('SELECT * FROM courses ORDER BY exam_type, class');
     res.json({ success: true, courses: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -345,7 +345,7 @@ router.post('/courses', adminAuth, async (req, res) => {
     );
     res.json({ success: true, course: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -359,7 +359,7 @@ router.put('/courses/:id', adminAuth, async (req, res) => {
     );
     res.json({ success: true, course: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -369,7 +369,7 @@ router.delete('/courses/:id', adminAuth, async (req, res) => {
     await pool.query('DELETE FROM courses WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -407,7 +407,7 @@ router.get('/student-analytics', adminAuth, async (req, res) => {
       students: studentsRes.rows
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -446,7 +446,7 @@ router.get('/student-analytics/:id', adminAuth, async (req, res) => {
       recent_activity: recentRes.rows
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -474,7 +474,7 @@ router.get('/analytics/hard-questions', adminAuth, async (req, res) => {
     `);
     res.json({ success: true, questions: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -520,7 +520,7 @@ router.get('/revenue', adminAuth, async (req, res) => {
       monthly: monthlyRes.rows
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -533,7 +533,7 @@ router.put('/concepts/:id/courses', adminAuth, async (req, res) => {
     await pool.query('UPDATE concepts SET course_ids = $1 WHERE id = $2', [course_ids || [], id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -544,7 +544,7 @@ router.get('/question-sets-count', adminAuth, async (req, res) => {
     const result = await pool.query('SELECT COUNT(*) FROM boss_questions WHERE is_active = true');
     res.json({ success: true, count: parseInt(result.rows[0].count) });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -560,7 +560,7 @@ router.get('/practice-questions', adminAuth, async (req, res) => {
     );
     res.json({ success: true, questions: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -580,7 +580,7 @@ router.post('/practice-questions', adminAuth, async (req, res) => {
     );
     res.json({ success: true, question: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -594,7 +594,7 @@ router.put('/practice-questions/:id', adminAuth, async (req, res) => {
     );
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -603,7 +603,7 @@ router.delete('/practice-questions/:id', adminAuth, async (req, res) => {
     await pool.query('UPDATE practice_questions SET is_active = false WHERE id = $1', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -614,7 +614,7 @@ router.get('/landing-content', adminAuth, async (req, res) => {
     const result = await pool.query('SELECT key, value, label, section FROM landing_content ORDER BY section, key');
     res.json({ success: true, content: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -632,7 +632,7 @@ router.put('/landing-content', adminAuth, async (req, res) => {
     }
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 

@@ -26,7 +26,7 @@ export default function BossQuestionsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
+    const token = sessionStorage.getItem('adminToken');
     if (!token) router.push('/');
   }, [router]);
 
@@ -74,7 +74,7 @@ export default function BossQuestionsPage() {
       <nav className="nav">
         <a href="/dashboard" style={{ textDecoration: 'none', color: '#9090a8' }}>Dashboard</a>
         <a href="/boss-questions" style={{ textDecoration: 'none', color: '#6c63ff' }}>Boss Questions</a>
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
       </nav>
 
       <div className="container">

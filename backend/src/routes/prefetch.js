@@ -15,7 +15,7 @@ router.post('/', auth, async (req, res) => {
     const progress = await pool.query('SELECT * FROM student_progress WHERE student_id =  AND boss_question_id = ', [studentId, boss_question_id]);
     res.json({ success: true, prefetched: { next_original_step: nextStep.rows[0] || null, current_step_clone: currentClone.rows[0] || null, next_step_clone: nextClone.rows[0] || null, student_points: studentPoints.rows[0]?.total_points || 0, progress: progress.rows[0] || null } });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 

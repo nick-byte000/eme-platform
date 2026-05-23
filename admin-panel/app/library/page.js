@@ -72,7 +72,7 @@ export default function LibraryPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    if (!localStorage.getItem('adminToken')) router.push('/');
+    if (!sessionStorage.getItem('adminToken')) router.push('/');
     load();
   }, []);
 
@@ -147,7 +147,7 @@ export default function LibraryPage() {
         <a href="/library" style={{ textDecoration: 'none', color: '#6c63ff' }}>Library</a>
         <a href="/students" style={{ textDecoration: 'none', color: '#9090a8' }}>Students</a>
         <a href="/revenue" style={{ textDecoration: 'none', color: '#9090a8' }}>Revenue</a>
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
       </nav>
 
       <div className="container" style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '1.5rem', alignItems: 'start' }}>

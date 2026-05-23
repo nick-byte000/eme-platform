@@ -44,7 +44,7 @@ router.get('/', auth, async (req, res) => {
     }));
     res.json({ success: true, concepts: result });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -80,7 +80,7 @@ router.get('/:id', auth, async (req, res) => {
       practice_result: practiceResultRow.rows[0] || null,
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -102,7 +102,7 @@ router.post('/unlock', auth, async (req, res) => {
     await pool.query('UPDATE students SET total_points = total_points - $1 WHERE id = $2', [unlockPoints, studentId]);
     res.json({ success: true, points_spent: unlockPoints, remaining_points: points - unlockPoints });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 

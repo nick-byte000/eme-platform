@@ -177,13 +177,16 @@ router.post('/submit', auth, async (req, res) => {
       progress
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
 router.get('/history/:studentId', auth, async (req, res) => {
   try {
     const { studentId } = req.params;
+    if (parseInt(studentId) !== req.student.id) {
+      return res.status(403).json({ success: false, error: 'Access denied' });
+    }
     const result = await pool.query(
       `SELECT sa.*, bq.title as boss_question_title, ls.step_number, ls.concept_tag
        FROM student_attempts sa
@@ -195,7 +198,7 @@ router.get('/history/:studentId', auth, async (req, res) => {
     );
     res.json({ success: true, attempts: result.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: 'Something went wrong' });
   }
 });
 

@@ -11,7 +11,7 @@ router.get('/', auth, async (req, res) => {
     const studentRank = leaderboard.findIndex(s => s.id === studentId) + 1;
     res.json({ success: true, leaderboard, student_rank: studentRank || null });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 

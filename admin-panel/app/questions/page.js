@@ -86,7 +86,7 @@ function QuestionsForm() {
   const BACKEND_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace('/api', '');
 
   useEffect(() => {
-    if (!localStorage.getItem('adminToken')) router.push('/');
+    if (!sessionStorage.getItem('adminToken')) router.push('/');
     loadConcepts();
     loadVideos();
     loadCourses();
@@ -360,7 +360,7 @@ function QuestionsForm() {
         <a href="/library" style={{ textDecoration: 'none', color: '#9090a8' }}>Library</a>
         <a href="/students" style={{ textDecoration: 'none', color: '#9090a8' }}>Students</a>
         <a href="/revenue" style={{ textDecoration: 'none', color: '#9090a8' }}>Revenue</a>
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
       </nav>
 
       <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 420px', gap: '2rem', alignItems: 'start' }}>

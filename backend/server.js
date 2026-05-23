@@ -19,8 +19,19 @@ const enrollmentRoutes = require('./src/routes/enrollment');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
-app.use(express.json());
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : ['http://localhost:3000', 'http://localhost:3001'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow server-to-server requests (no origin) and allowed origins
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
+app.use(express.json({ limit: '1mb' }));
 app.use('/videos', express.static(path.join(__dirname, 'videos')));
 
 pool.query('SELECT NOW()', (err, res) => {

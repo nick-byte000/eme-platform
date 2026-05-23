@@ -23,7 +23,7 @@ export default function StudentsPage() {
   const [loadingDetail, setLoadingDetail] = useState(null);
 
   useEffect(() => {
-    if (!localStorage.getItem('adminToken')) router.push('/');
+    if (!sessionStorage.getItem('adminToken')) router.push('/');
     loadAll();
   }, []);
 
@@ -76,7 +76,7 @@ export default function StudentsPage() {
             {l.label}
           </a>
         ))}
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>
           Sign Out
         </button>
       </nav>

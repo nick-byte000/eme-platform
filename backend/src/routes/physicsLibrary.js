@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
     });
     res.json({ success: true, library });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 

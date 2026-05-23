@@ -62,7 +62,7 @@ export default function CoursesPage() {
   const [featureInput, setFeatureInput] = useState('');
 
   useEffect(() => {
-    if (!localStorage.getItem('adminToken')) router.push('/');
+    if (!sessionStorage.getItem('adminToken')) router.push('/');
     loadCourses();
     loadAnalytics();
   }, []);
@@ -161,7 +161,7 @@ export default function CoursesPage() {
             {l.label}
           </a>
         ))}
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>
           Sign Out
         </button>
       </nav>

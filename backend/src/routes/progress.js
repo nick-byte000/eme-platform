@@ -12,7 +12,7 @@ router.get('/:studentId', auth, async (req, res) => {
     const weakConcept = await pool.query('SELECT ls.concept_tag, COUNT(*) as failures FROM student_attempts sa JOIN ladder_steps ls ON sa.step_id = ls.id WHERE sa.student_id = $1 AND sa.is_correct = false GROUP BY ls.concept_tag ORDER BY failures DESC LIMIT 1', [studentId]);
     res.json({ success: true, overall: { ...student.rows[0], strongest_concept: strongConcept.rows[0]?.concept_tag || null, weakest_concept: weakConcept.rows[0]?.concept_tag || null }, by_boss_question: progress.rows });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -62,7 +62,7 @@ router.get('/home-data', auth, async (req, res) => {
       in_progress: inProgress.rows,
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 
@@ -84,7 +84,7 @@ router.get('/readiness/:bossQuestionId', auth, async (req, res) => {
     const recommendation = readinessScore >= 80 ? 'You are ready for the boss question!' : readinessScore >= 60 ? 'Almost ready — review your weak concepts.' : 'Review more steps before attempting the boss question.';
     res.json({ success: true, readiness_score: readinessScore, breakdown: { steps_first_attempt: firstAttempt, steps_needed_hint: neededHint, steps_needed_clone: neededClone, steps_needed_video: neededVideo }, recommendation, can_attempt: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 

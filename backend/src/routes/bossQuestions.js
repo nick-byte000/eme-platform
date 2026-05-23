@@ -21,7 +21,7 @@ router.get('/:id', auth, async (req, res) => {
     });
     res.json({ success: true, boss_question: boss, steps, student_progress: progress });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 

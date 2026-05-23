@@ -29,7 +29,7 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem('adminToken', data.token);
+      sessionStorage.setItem('adminToken', data.token);
       router.push('/dashboard');
     } catch (err) {
       setError(err.message);

@@ -1,7 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const apiCall = async (endpoint, method = 'GET', body = null) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
+  const token = typeof window !== 'undefined' ? sessionStorage.getItem('adminToken') : null;
   const options = {
     method,
     headers: {
@@ -18,7 +18,7 @@ export const apiCall = async (endpoint, method = 'GET', body = null) => {
 
     if (!data.success && response.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('adminToken');
+        sessionStorage.removeItem('adminToken');
         window.location.href = '/';
       }
     }

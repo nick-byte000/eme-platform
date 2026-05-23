@@ -122,7 +122,7 @@ export default function LandingPage() {
   const [openSection, setOpenSection] = useState('hero');
 
   useEffect(() => {
-    if (!localStorage.getItem('adminToken')) { router.push('/'); return; }
+    if (!sessionStorage.getItem('adminToken')) { router.push('/'); return; }
     loadContent();
   }, []);
 
@@ -169,7 +169,7 @@ export default function LandingPage() {
         {NAV.map(l => (
           <a key={l.href} href={l.href} style={{ textDecoration: 'none', color: l.href === '/landing' ? '#6c63ff' : '#9090a8', fontWeight: l.href === '/landing' ? 700 : 400 }}>{l.label}</a>
         ))}
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
       </nav>
 
       <div className="container">

@@ -32,7 +32,7 @@ export default function DashboardPage() {
   const [time, setTime] = useState('');
 
   useEffect(() => {
-    if (!localStorage.getItem('adminToken')) { router.push('/'); return; }
+    if (!sessionStorage.getItem('adminToken')) { router.push('/'); return; }
     loadAll();
     const tick = () => setTime(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     tick();
@@ -81,7 +81,7 @@ export default function DashboardPage() {
         {NAV.map(l => (
           <a key={l.href} href={l.href} style={{ textDecoration: 'none', color: l.href === '/dashboard' ? '#6c63ff' : '#9090a8', fontWeight: l.href === '/dashboard' ? 700 : 400 }}>{l.label}</a>
         ))}
-        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { localStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
+        <button className="btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { sessionStorage.removeItem('adminToken'); router.push('/'); }}>Sign Out</button>
       </nav>
 
       <div className="container">

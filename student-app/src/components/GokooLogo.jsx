@@ -27,8 +27,8 @@ export default function GokooLogo({ size = 'md', dark = false }) {
       </div>
       {/* Text */}
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-        <span style={{ fontSize: nameSize, fontWeight: 800, color: dark ? '#ffffff' : '#1a1035', letterSpacing: '-0.3px', lineHeight: 1 }}>
-          Gok<span style={{ color: '#f5c842', fontSize: infSize, lineHeight: 0.7, verticalAlign: 'middle' }}>∞</span>
+        <span style={{ fontSize: nameSize, fontWeight: 800, color: dark ? '#ffffff' : '#1a1035', letterSpacing: '-0.3px', display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>
+          Gok<span style={{ color: '#f5c842', fontSize: infSize, lineHeight: 1 }}>∞</span>
         </span>
         <span style={{ fontSize: subSize, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.5)' : '#8888aa', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: '3px' }}>
           Goal of Infinity Knowledge

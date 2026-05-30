@@ -152,7 +152,7 @@ function LoginForm() {
             </p>
             <p style={{ textAlign: 'center', marginTop: '0.4rem', fontSize: '13px', color: '#6b6b80' }}>
               New student?{' '}
-              <span onClick={() => router.push('/')} style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline' }}>Browse Courses</span>
+              <span onClick={() => { window.location.href = 'https://gokoo.in'; }} style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline' }}>Browse Courses</span>
             </p>
           </form>
         </div>

@@ -329,6 +329,12 @@ function QuestionsForm() {
     loadQuestionSets(selectedConceptId);
   };
 
+  const deleteSet = async (setId, title) => {
+    if (!window.confirm(`Delete the full question set "${title}"?\nThis will delete the set and all its questions. Cannot be undone.`)) return;
+    const r = await apiCall(`/admin/boss-questions/${setId}`, 'DELETE');
+    if (r.success) loadQuestionSets(selectedConceptId);
+  };
+
   const correctOptions = ['a', 'b', 'c', 'd'];
 
   // ── Video picker helper ───────────────────────────────────
@@ -830,7 +836,14 @@ function QuestionsForm() {
                       <span style={{ fontSize: '10px', color: '#9090a8' }}>{qs.steps?.length || 0} steps · #{qs.id}</span>
                     </div>
                   </div>
-                  <span style={{ color: '#9090a8' }}>{expandedSet === qs.id ? '▲' : '▼'}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); deleteSet(qs.id, qs.title); }}
+                      style={{ background: 'none', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '6px', color: '#ef4444', fontSize: '11px', padding: '3px 10px', cursor: 'pointer' }}
+                    >🗑 Delete Set</button>
+                    <span style={{ color: '#9090a8' }}>{expandedSet === qs.id ? '▲' : '▼'}</span>
+                  </div>
                 </div>
               </div>
 

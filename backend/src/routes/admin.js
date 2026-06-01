@@ -186,6 +186,17 @@ router.put('/boss-questions/:id', adminAuth, async (req, res) => {
   }
 });
 
+router.delete('/boss-questions/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query('UPDATE ladder_steps SET is_active = false WHERE boss_question_id = $1', [id]);
+    await pool.query('UPDATE boss_questions SET is_active = false WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err); res.status(500).json({ success: false, error: 'Something went wrong. Please try again.' });
+  }
+});
+
 router.get('/concepts-list', adminAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM concepts WHERE is_active = true ORDER BY id DESC');

@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS student_tier_progress (
+  id SERIAL PRIMARY KEY,
+  student_id INTEGER REFERENCES students(id),
+  boss_question_id INTEGER REFERENCES boss_questions(id),
+  current_tier TEXT DEFAULT 'T1',
+  t1_correct INTEGER DEFAULT 0,
+  t2_correct INTEGER DEFAULT 0,
+  t3_correct INTEGER DEFAULT 0,
+  t1_gates_passed INTEGER DEFAULT 0,
+  t2_gates_passed INTEGER DEFAULT 0,
+  t3_gates_passed INTEGER DEFAULT 0,
+  t1_completed BOOLEAN DEFAULT false,
+  t2_completed BOOLEAN DEFAULT false,
+  t3_completed BOOLEAN DEFAULT false,
+  in_fallback BOOLEAN DEFAULT false,
+  fallback_step_id INTEGER,
+  fallback_return_step_id INTEGER,
+  recommendation_confirmed_twice BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(student_id, boss_question_id)
+);

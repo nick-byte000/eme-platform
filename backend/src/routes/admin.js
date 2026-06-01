@@ -62,7 +62,8 @@ router.post('/ladder-steps', adminAuth, async (req, res) => {
       marks, hint_text, explanation, theory_card, theory_card_hinglish, video_url, difficulty, target_exam,
       source, language, is_boss_step,
       clone_question_text, clone_option_a, clone_option_b, clone_option_c, clone_option_d,
-      clone_correct_options, clone_explanation
+      clone_correct_options, clone_explanation,
+      tier, rung, is_mastery_gate, insight_correct, insight_wrong
     } = req.body;
     const result = await pool.query(
       `INSERT INTO ladder_steps
@@ -72,16 +73,18 @@ router.post('/ladder-steps', adminAuth, async (req, res) => {
          marks, hint_text, explanation, theory_card, theory_card_hinglish, video_url, difficulty, target_exam,
          source, language, is_boss_step,
          clone_question_text, clone_option_a, clone_option_b, clone_option_c, clone_option_d,
-         clone_correct_options, clone_explanation)
+         clone_correct_options, clone_explanation,
+         tier, rung, is_mastery_gate, insight_correct, insight_wrong)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
-               $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33) RETURNING *`,
+               $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38) RETURNING *`,
       [boss_question_id, step_number, concept_tag, question_type || 'mcq', question_text,
        question_image_url, option_a, option_a_image_url, option_b, option_b_image_url,
        option_c, option_c_image_url, option_d, option_d_image_url, correct_options,
        marks || 4, hint_text, explanation, theory_card, theory_card_hinglish || null, video_url,
        difficulty || 'medium', target_exam || 'all', source, language || 'english', is_boss_step || false,
        clone_question_text, clone_option_a, clone_option_b, clone_option_c, clone_option_d,
-       clone_correct_options, clone_explanation]
+       clone_correct_options, clone_explanation,
+       tier || 'T1', rung || 1, is_mastery_gate || false, insight_correct || null, insight_wrong || null]
     );
     res.json({ success: true, step: result.rows[0] });
   } catch (err) {

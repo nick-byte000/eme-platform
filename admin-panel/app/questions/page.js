@@ -26,11 +26,16 @@ const EMPTY_STEP = {
   option_d: '', option_d_image_url: '',
   correct_options: 'a',
   explanation: '',
+  insight_correct: '',
+  insight_wrong: '',
   theory_card: '',
   theory_card_hinglish: '',
   video_url: '',
   hint_text: '',
   difficulty: 'medium',
+  tier: 'T1',
+  rung: 1,
+  is_mastery_gate: false,
   clone_question_text: '',
   clone_question_image_url: '',
   clone_option_a: '', clone_option_a_image_url: '',
@@ -261,6 +266,11 @@ function QuestionsForm() {
         clone_option_d: s.clone_option_d, clone_option_d_image_url: s.clone_option_d_image_url || null,
         clone_correct_options: s.clone_correct_options,
         clone_explanation: s.clone_explanation,
+        tier: s.tier || 'T1',
+        rung: s.rung || 1,
+        is_mastery_gate: s.is_mastery_gate || false,
+        insight_correct: s.insight_correct || null,
+        insight_wrong: s.insight_wrong || null,
       });
       if (r.success) { added++; setProgress({ current: added, total: filledSteps.length }); }
     }
@@ -545,6 +555,28 @@ function QuestionsForm() {
                           <div style={{ fontSize: '12px', fontWeight: 700, color: '#f97316', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid rgba(249,115,22,0.2)' }}>
                             Main Question
                           </div>
+                          {/* Tier / Rung / Mastery Gate */}
+                          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                              <label>Tier</label>
+                              <select value={step.tier} onChange={e => updateStep(idx, 'tier', e.target.value)}>
+                                <option value="T1">T1 — Foundation</option>
+                                <option value="T2">T2 — Application</option>
+                                <option value="T3">T3 — JEE Style</option>
+                              </select>
+                            </div>
+                            <div className="form-group" style={{ flex: 0.5, marginBottom: 0 }}>
+                              <label>Rung</label>
+                              <input type="number" value={step.rung} min={1} max={20} onChange={e => updateStep(idx, 'rung', parseInt(e.target.value) || 1)} />
+                            </div>
+                            <div className="form-group" style={{ flex: 0.7, marginBottom: 0 }}>
+                              <label>Gate?</label>
+                              <button type="button" onClick={() => updateStep(idx, 'is_mastery_gate', !step.is_mastery_gate)} style={{ width: '100%', padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', border: step.is_mastery_gate ? '1.5px solid #f59e0b' : '1px solid rgba(255,255,255,0.1)', background: step.is_mastery_gate ? 'rgba(245,158,11,0.15)' : 'transparent', color: step.is_mastery_gate ? '#f59e0b' : '#9090a8' }}>
+                                {step.is_mastery_gate ? '⭐ Gate' : '○ Regular'}
+                              </button>
+                            </div>
+                          </div>
+
                           <div className="form-group"><label>Concept Tag</label>
                             <input value={step.concept_tag} onChange={e => updateStep(idx, 'concept_tag', e.target.value)} placeholder="e.g. Normal Force" />
                           </div>
@@ -568,6 +600,12 @@ function QuestionsForm() {
                           </div>
                           <div className="form-group"><label>Explanation</label>
                             <textarea value={step.explanation} onChange={e => updateStep(idx, 'explanation', e.target.value)} rows={2} placeholder="Why this answer is correct..." style={{ resize: 'vertical' }} />
+                          </div>
+                          <div className="form-group"><label style={{ color: '#22c55e' }}>Insight on Correct <span style={{ color: '#9090a8', fontWeight: 400, fontSize: '10px' }}>(shown when right)</span></label>
+                            <textarea value={step.insight_correct} onChange={e => updateStep(idx, 'insight_correct', e.target.value)} rows={2} placeholder="Great! Here's why it's correct..." style={{ resize: 'vertical' }} />
+                          </div>
+                          <div className="form-group"><label style={{ color: '#f43f5e' }}>Insight on Wrong <span style={{ color: '#9090a8', fontWeight: 400, fontSize: '10px' }}>(shown when wrong)</span></label>
+                            <textarea value={step.insight_wrong} onChange={e => updateStep(idx, 'insight_wrong', e.target.value)} rows={2} placeholder="Common mistake: ..." style={{ resize: 'vertical' }} />
                           </div>
                           <div className="form-group"><label>Difficulty</label>
                             <select value={step.difficulty} onChange={e => updateStep(idx, 'difficulty', e.target.value)}>

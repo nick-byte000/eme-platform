@@ -158,10 +158,9 @@ router.get('/analytics/heatmap/:bossQuestionId', adminAuth, async (req, res) => 
 router.get('/question-sets', adminAuth, async (req, res) => {
   try {
     const { concept_id } = req.query;
-    const bossResult = await pool.query(
-      'SELECT * FROM boss_questions WHERE concept_id = $1 AND is_active = true ORDER BY id DESC',
-      [concept_id]
-    );
+    const bossResult = concept_id
+      ? await pool.query('SELECT * FROM boss_questions WHERE concept_id = $1 AND is_active = true ORDER BY id DESC', [concept_id])
+      : await pool.query('SELECT bq.*, c.concept_name, c.subject, c.chapter_name FROM boss_questions bq LEFT JOIN concepts c ON bq.concept_id = c.id WHERE bq.is_active = true ORDER BY bq.id DESC');
     const sets = await Promise.all(bossResult.rows.map(async bq => {
       const stepsResult = await pool.query(
         'SELECT * FROM ladder_steps WHERE boss_question_id = $1 AND is_active = true ORDER BY step_number',

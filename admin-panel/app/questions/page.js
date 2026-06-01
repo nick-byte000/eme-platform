@@ -366,6 +366,7 @@ function QuestionsForm() {
         <a href="/courses" style={{ textDecoration: 'none', color: '#9090a8' }}>Courses</a>
         <a href="/concepts" style={{ textDecoration: 'none', color: '#9090a8' }}>Concepts</a>
         <a href="/questions" style={{ textDecoration: 'none', color: '#6c63ff' }}>Questions</a>
+        <a href="/sets" style={{ textDecoration: 'none', color: '#9090a8' }}>Sets</a>
         <a href="/library" style={{ textDecoration: 'none', color: '#9090a8' }}>Library</a>
         <a href="/students" style={{ textDecoration: 'none', color: '#9090a8' }}>Students</a>
         <a href="/revenue" style={{ textDecoration: 'none', color: '#9090a8' }}>Revenue</a>

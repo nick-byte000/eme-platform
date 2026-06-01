@@ -68,12 +68,13 @@ function QuestionsForm() {
   const [bossImageUrl, setBossImageUrl] = useState('');
   const [bossLevel, setBossLevel] = useState('beginner');
   const [bossQType, setBossQType] = useState('single_correct');
-  const [steps, setSteps] = useState(Array.from({ length: 8 }, (_, i) => ({ ...EMPTY_STEP, step_number: i + 1 })));
-  const [openStep, setOpenStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState({ ...EMPTY_STEP, step_number: 1 });
+  const [savedSteps, setSavedSteps] = useState([]);
+  const [savingQ, setSavingQ] = useState(false);
+  const [qMsg, setQMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [message, setMessage] = useState('');
-  const [savedSetId, setSavedSetId] = useState(null); // locks form after save
+  const [savedSetId, setSavedSetId] = useState(null);
 
   // Existing sets
   const [questionSets, setQuestionSets] = useState([]);
@@ -182,22 +183,13 @@ function QuestionsForm() {
 
   const setPq = (k, v) => setPqForm(f => ({ ...f, [k]: v }));
 
-  const updateStep = (index, field, value) => {
-    setSteps(prev => prev.map((s, i) => i === index ? { ...s, [field]: value } : s));
-  };
-
-  const filledCount = steps.filter(s => s.question_text.trim() && s.clone_question_text.trim()).length;
+  const updateCS = (field, value) => setCurrentStep(prev => ({ ...prev, [field]: value }));
 
   const submit = async (e) => {
     e.preventDefault();
     if (!selectedConceptId) { setMessage('Please select a concept first'); return; }
     if (!bossTitle.trim()) { setMessage('Please enter a question set title'); return; }
-    const filledSteps = steps.filter(s => s.question_text.trim());
-    if (filledSteps.length === 0) { setMessage('Add at least 1 question'); return; }
-
-    setLoading(true);
-    setMessage('');
-
+    setLoading(true); setMessage('');
     const concept = concepts.find(c => String(c.id) === String(selectedConceptId));
     const bossResult = await apiCall('/admin/boss-questions', 'POST', {
       concept_id: selectedConceptId,
@@ -210,65 +202,68 @@ function QuestionsForm() {
       question_text: bossText || bossTitle,
       question_image_url: bossImageUrl || null,
       difficulty: 'medium',
-      total_steps: filledSteps.length,
+      total_steps: 0,
       target_exam: selectedCourseObj?.exam_type || 'JEE',
       level: bossLevel,
       question_type_category: bossQType,
       language: concept?.language || 'english',
       source: 'Admin created',
     });
-
-    if (!bossResult.success) {
-      setMessage('Error: ' + (bossResult.error || ''));
-      setLoading(false);
-      return;
-    }
-
-    const bossId = bossResult.boss_question.id;
-    let added = 0;
-    setProgress({ current: 0, total: filledSteps.length });
-
-    for (let i = 0; i < filledSteps.length; i++) {
-      const s = filledSteps[i];
-      const r = await apiCall('/admin/ladder-steps', 'POST', {
-        boss_question_id: bossId,
-        step_number: s.step_number,
-        concept_tag: s.concept_tag || `Step ${s.step_number}`,
-        question_type: 'mcq',
-        question_text: s.question_text,
-        question_image_url: s.question_image_url || null,
-        option_a: s.option_a, option_a_image_url: s.option_a_image_url || null,
-        option_b: s.option_b, option_b_image_url: s.option_b_image_url || null,
-        option_c: s.option_c, option_c_image_url: s.option_c_image_url || null,
-        option_d: s.option_d, option_d_image_url: s.option_d_image_url || null,
-        correct_options: s.correct_options,
-        marks: 4,
-        hint_text: s.hint_text,
-        explanation: s.explanation,
-        theory_card: s.theory_card,
-        theory_card_hinglish: s.theory_card_hinglish,
-        video_url: s.video_url,
-        difficulty: s.difficulty,
-        target_exam: 'JEE',
-        language: concept?.language || 'english',
-        source: 'Admin created',
-        is_boss_step: i === filledSteps.length - 1,
-        clone_question_text: s.clone_question_text,
-        clone_question_image_url: s.clone_question_image_url || null,
-        clone_option_a: s.clone_option_a, clone_option_a_image_url: s.clone_option_a_image_url || null,
-        clone_option_b: s.clone_option_b, clone_option_b_image_url: s.clone_option_b_image_url || null,
-        clone_option_c: s.clone_option_c, clone_option_c_image_url: s.clone_option_c_image_url || null,
-        clone_option_d: s.clone_option_d, clone_option_d_image_url: s.clone_option_d_image_url || null,
-        clone_correct_options: s.clone_correct_options,
-        clone_explanation: s.clone_explanation,
-      });
-      if (r.success) { added++; setProgress({ current: added, total: filledSteps.length }); }
-    }
-
-    setMessage(`✓ Saved "${bossTitle}" with ${added} questions`);
-    setSavedSetId(bossId); // lock the form — prevents double-saving
     setLoading(false);
-    loadQuestionSets(selectedConceptId);
+    if (!bossResult.success) { setMessage('Error: ' + (bossResult.error || '')); return; }
+    setSavedSetId(bossResult.boss_question.id);
+    setCurrentStep({ ...EMPTY_STEP, step_number: 1 });
+    setSavedSteps([]);
+    setQMsg('');
+  };
+
+  const saveQuestion = async (andFinish = false) => {
+    if (!currentStep.question_text.trim()) { setQMsg('Please enter the question text'); return; }
+    setSavingQ(true); setQMsg('');
+    const concept = concepts.find(c => String(c.id) === String(selectedConceptId));
+    const r = await apiCall('/admin/ladder-steps', 'POST', {
+      boss_question_id: savedSetId,
+      step_number: currentStep.step_number,
+      concept_tag: currentStep.concept_tag || `Step ${currentStep.step_number}`,
+      question_type: 'mcq',
+      question_text: currentStep.question_text,
+      question_image_url: currentStep.question_image_url || null,
+      option_a: currentStep.option_a, option_a_image_url: currentStep.option_a_image_url || null,
+      option_b: currentStep.option_b, option_b_image_url: currentStep.option_b_image_url || null,
+      option_c: currentStep.option_c, option_c_image_url: currentStep.option_c_image_url || null,
+      option_d: currentStep.option_d, option_d_image_url: currentStep.option_d_image_url || null,
+      correct_options: currentStep.correct_options,
+      marks: 4,
+      hint_text: currentStep.hint_text,
+      explanation: currentStep.explanation,
+      theory_card: currentStep.theory_card,
+      theory_card_hinglish: currentStep.theory_card_hinglish,
+      video_url: currentStep.video_url,
+      difficulty: currentStep.difficulty,
+      target_exam: 'JEE',
+      language: concept?.language || 'english',
+      source: 'Admin created',
+      is_boss_step: false,
+      clone_question_text: currentStep.clone_question_text,
+      clone_question_image_url: currentStep.clone_question_image_url || null,
+      clone_option_a: currentStep.clone_option_a, clone_option_a_image_url: currentStep.clone_option_a_image_url || null,
+      clone_option_b: currentStep.clone_option_b, clone_option_b_image_url: currentStep.clone_option_b_image_url || null,
+      clone_option_c: currentStep.clone_option_c, clone_option_c_image_url: currentStep.clone_option_c_image_url || null,
+      clone_option_d: currentStep.clone_option_d, clone_option_d_image_url: currentStep.clone_option_d_image_url || null,
+      clone_correct_options: currentStep.clone_correct_options,
+      clone_explanation: currentStep.clone_explanation,
+    });
+    setSavingQ(false);
+    if (!r.success) { setQMsg('Error: ' + (r.error || 'Failed')); return; }
+    const newSaved = [...savedSteps, r.step];
+    setSavedSteps(newSaved);
+    if (andFinish) {
+      setQMsg(`✓ Done! ${newSaved.length} question${newSaved.length !== 1 ? 's' : ''} saved.`);
+      loadQuestionSets(selectedConceptId);
+    } else {
+      setCurrentStep({ ...EMPTY_STEP, step_number: newSaved.length + 1 });
+      setQMsg('✓ Saved! Fill the next question below.');
+    }
   };
 
   // Derive exam type from selected concept's course
@@ -296,8 +291,9 @@ function QuestionsForm() {
     setBossImageUrl('');
     setBossLevel('beginner');
     setBossQType('single_correct');
-    setSteps(Array.from({ length: 8 }, (_, i) => ({ ...EMPTY_STEP, step_number: i + 1 })));
-    setOpenStep(1);
+    setCurrentStep({ ...EMPTY_STEP, step_number: 1 });
+    setSavedSteps([]);
+    setQMsg('');
     setMessage('');
   };
 
@@ -488,57 +484,56 @@ function QuestionsForm() {
               </div>
             </div>
 
-            {/* Progress bar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#9090a8', marginBottom: '8px' }}>
-              <span>{filledCount}/8 questions filled (main + clone)</span>
-              <span style={{ color: '#6c63ff' }}>Click a step to expand</span>
-            </div>
-            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
-              <div style={{ height: '100%', borderRadius: '999px', background: 'linear-gradient(90deg,#6c63ff,#f97316)', width: `${(filledCount / 8) * 100}%`, transition: 'width 0.4s ease' }} />
-            </div>
+            {/* Create Set button (before set exists) */}
+            {!savedSetId && (
+              <div className="card" style={{ textAlign: 'center' }}>
+                <button type="submit" className="btn-primary" disabled={loading} style={{ padding: '13px 40px', fontSize: '15px' }}>
+                  {loading ? 'Creating...' : 'Create Question Set & Start Adding Questions →'}
+                </button>
+              </div>
+            )}
 
-            {/* 8-step accordions */}
-            {steps.map((step, idx) => {
-              const isOpen = openStep === step.step_number;
-              const isFilled = step.question_text.trim() && step.clone_question_text.trim();
-              const hasMain = step.question_text.trim();
-              return (
-                <div key={idx} className="card" style={{ marginBottom: '10px', padding: 0, overflow: 'hidden' }}>
-                  <div onClick={() => setOpenStep(isOpen ? null : step.step_number)} style={{
-                    display: 'flex', alignItems: 'center', gap: '14px',
-                    padding: '14px 18px', cursor: 'pointer',
-                    background: isOpen ? 'rgba(108,99,255,0.08)' : 'transparent',
-                    borderBottom: isOpen ? '1px solid rgba(255,255,255,0.07)' : 'none',
-                    userSelect: 'none'
-                  }}>
-                    <div style={{
-                      width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
-                      background: isFilled ? '#22c55e' : hasMain ? '#f97316' : 'rgba(255,255,255,0.1)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '12px', fontWeight: 700, color: 'white'
-                    }}>
-                      {isFilled ? '✓' : step.step_number}
+            {/* After set created: saved questions list + add question form */}
+            {savedSetId && (
+              <div>
+                {/* Saved questions list */}
+                {savedSteps.length > 0 && (
+                  <div className="card" style={{ marginBottom: '1rem' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#9090a8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>
+                      {savedSteps.length} question{savedSteps.length !== 1 ? 's' : ''} saved
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontWeight: 600, fontSize: '14px' }}>
-                        Step {step.step_number}
-                        {step.concept_tag && <span style={{ color: '#6c63ff', marginLeft: '8px' }}>{step.concept_tag}</span>}
-                      </span>
-                      {!isOpen && step.question_text && (
-                        <div style={{ fontSize: '12px', color: '#9090a8', marginTop: '2px' }}>
-                          {step.question_text.substring(0, 70)}...
+                    {savedSteps.map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: i < savedSteps.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                        <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>✓</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '13px', color: '#e0e0e0', fontWeight: 500 }}>Q{s.step_number}: {s.question_text?.substring(0, 65)}{s.question_text?.length > 65 ? '…' : ''}</div>
+                          <div style={{ fontSize: '11px', color: '#9090a8', marginTop: '2px' }}>
+                            {s.clone_question_text ? '✓ Clone' : 'No clone'} · {s.difficulty}
+                            {s.concept_tag ? ` · ${s.concept_tag}` : ''}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      {hasMain && <span style={{ fontSize: '11px', color: '#f97316', background: 'rgba(249,115,22,0.1)', padding: '2px 8px', borderRadius: '10px' }}>Main ✓</span>}
-                      {step.clone_question_text && <span style={{ fontSize: '11px', color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 8px', borderRadius: '10px' }}>Clone ✓</span>}
-                      <span style={{ color: '#9090a8', fontSize: '16px' }}>{isOpen ? '▲' : '▼'}</span>
-                    </div>
+                      </div>
+                    ))}
                   </div>
+                )}
 
-                  {isOpen && (
-                    <div style={{ padding: '20px 18px' }}>
+                {/* Status / message */}
+                {qMsg && (
+                  <div className={`alert ${qMsg.startsWith('Error') ? 'alert-error' : 'alert-success'}`} style={{ marginBottom: '1rem', fontSize: '13px' }}>
+                    {qMsg}
+                  </div>
+                )}
+
+                {/* Only show add form when not finished */}
+                {!qMsg.startsWith('✓ Done') && (
+                  <>
+                    {/* Add question form */}
+                    <div className="card" style={{ marginBottom: '1rem', border: '1px solid rgba(108,99,255,0.25)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#a5a0ff' }}>Question {currentStep.step_number}</div>
+                        <span style={{ fontSize: '11px', color: '#9090a8' }}>All fields except Question text are optional</span>
+                      </div>
+
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                         {/* Main */}
                         <div>
@@ -546,31 +541,31 @@ function QuestionsForm() {
                             Main Question
                           </div>
                           <div className="form-group"><label>Concept Tag</label>
-                            <input value={step.concept_tag} onChange={e => updateStep(idx, 'concept_tag', e.target.value)} placeholder="e.g. Normal Force" />
+                            <input value={currentStep.concept_tag} onChange={e => updateCS('concept_tag', e.target.value)} placeholder="e.g. Normal Force" />
                           </div>
                           <div className="form-group"><label>Question <span style={{ color: '#6c63ff', fontSize: '10px', fontWeight: 400 }}>use $...$ for math</span></label>
-                            <textarea value={step.question_text} onChange={e => updateStep(idx, 'question_text', e.target.value)} rows={3} placeholder="e.g. Find $\frac{1}{2}mv^2$ when v = 10 m/s" style={{ resize: 'vertical' }} />
-                            <MathPreview value={step.question_text} />
-                            <ImageUploader value={step.question_image_url} onChange={v => updateStep(idx, 'question_image_url', v)} label="Question Image" />
+                            <textarea value={currentStep.question_text} onChange={e => updateCS('question_text', e.target.value)} rows={3} placeholder="e.g. Find the acceleration when..." style={{ resize: 'vertical' }} />
+                            <MathPreview value={currentStep.question_text} />
+                            <ImageUploader value={currentStep.question_image_url} onChange={v => updateCS('question_image_url', v)} label="Question Image" />
                           </div>
                           {['a','b','c','d'].map(opt => (
                             <div className="form-group" key={opt} style={{ marginBottom: '8px' }}>
                               <label>Option {opt.toUpperCase()}</label>
-                              <input value={step[`option_${opt}`]} onChange={e => updateStep(idx, `option_${opt}`, e.target.value)} placeholder={`Option ${opt.toUpperCase()}`} />
-                              <MathPreview value={step[`option_${opt}`]} />
-                              <ImageUploader value={step[`option_${opt}_image_url`]} onChange={v => updateStep(idx, `option_${opt}_image_url`, v)} label={`Option ${opt.toUpperCase()} Image`} />
+                              <input value={currentStep[`option_${opt}`]} onChange={e => updateCS(`option_${opt}`, e.target.value)} placeholder={`Option ${opt.toUpperCase()}`} />
+                              <MathPreview value={currentStep[`option_${opt}`]} />
+                              <ImageUploader value={currentStep[`option_${opt}_image_url`]} onChange={v => updateCS(`option_${opt}_image_url`, v)} label={`Option ${opt.toUpperCase()} Image`} />
                             </div>
                           ))}
                           <div className="form-group"><label>Correct Answer</label>
-                            <select value={step.correct_options} onChange={e => updateStep(idx, 'correct_options', e.target.value)}>
+                            <select value={currentStep.correct_options} onChange={e => updateCS('correct_options', e.target.value)}>
                               {correctOptions.map(o => <option key={o} value={o}>Option {o.toUpperCase()}</option>)}
                             </select>
                           </div>
                           <div className="form-group"><label>Explanation</label>
-                            <textarea value={step.explanation} onChange={e => updateStep(idx, 'explanation', e.target.value)} rows={2} placeholder="Why this answer is correct..." style={{ resize: 'vertical' }} />
+                            <textarea value={currentStep.explanation} onChange={e => updateCS('explanation', e.target.value)} rows={2} placeholder="Why this answer is correct..." style={{ resize: 'vertical' }} />
                           </div>
                           <div className="form-group"><label>Difficulty</label>
-                            <select value={step.difficulty} onChange={e => updateStep(idx, 'difficulty', e.target.value)}>
+                            <select value={currentStep.difficulty} onChange={e => updateCS('difficulty', e.target.value)}>
                               <option value="easy">Easy</option>
                               <option value="medium">Medium</option>
                               <option value="hard">Hard</option>
@@ -581,92 +576,69 @@ function QuestionsForm() {
                         {/* Clone */}
                         <div>
                           <div style={{ fontSize: '12px', fontWeight: 700, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid rgba(34,197,94,0.2)' }}>
-                            Clone Question <span style={{ color: '#9090a8', fontWeight: 400, textTransform: 'none' }}>(simplified)</span>
+                            Clone Question <span style={{ color: '#9090a8', fontWeight: 400, textTransform: 'none' }}>(optional · simplified)</span>
                           </div>
                           <div className="form-group"><label>Theory (English)</label>
-                            <textarea value={step.theory_card} onChange={e => updateStep(idx, 'theory_card', e.target.value)} rows={3} placeholder="Explain the concept in English..." style={{ resize: 'vertical' }} />
+                            <textarea value={currentStep.theory_card} onChange={e => updateCS('theory_card', e.target.value)} rows={3} placeholder="Explain the concept in English..." style={{ resize: 'vertical' }} />
                           </div>
                           <div className="form-group"><label>Theory (Hinglish)</label>
-                            <textarea value={step.theory_card_hinglish} onChange={e => updateStep(idx, 'theory_card_hinglish', e.target.value)} rows={3} placeholder="Hinglish mein concept explain karo..." style={{ resize: 'vertical' }} />
+                            <textarea value={currentStep.theory_card_hinglish} onChange={e => updateCS('theory_card_hinglish', e.target.value)} rows={3} placeholder="Hinglish mein concept explain karo..." style={{ resize: 'vertical' }} />
                           </div>
                           <div className="form-group">
                             <label>Video</label>
-                            <VideoField value={step.video_url} onChange={v => updateStep(idx, 'video_url', v)} />
+                            <VideoField value={currentStep.video_url} onChange={v => updateCS('video_url', v)} />
                           </div>
                           <div className="form-group"><label>Hint</label>
-                            <textarea value={step.hint_text} onChange={e => updateStep(idx, 'hint_text', e.target.value)} rows={2} placeholder="A nudge without giving the answer..." style={{ resize: 'vertical' }} />
+                            <textarea value={currentStep.hint_text} onChange={e => updateCS('hint_text', e.target.value)} rows={2} placeholder="A nudge without giving the answer..." style={{ resize: 'vertical' }} />
                           </div>
                           <div className="form-group"><label>Clone Question</label>
-                            <textarea value={step.clone_question_text} onChange={e => updateStep(idx, 'clone_question_text', e.target.value)} rows={3} placeholder="Simpler version..." style={{ resize: 'vertical' }} />
-                            <MathPreview value={step.clone_question_text} />
-                            <ImageUploader value={step.clone_question_image_url} onChange={v => updateStep(idx, 'clone_question_image_url', v)} label="Clone Question Image" />
+                            <textarea value={currentStep.clone_question_text} onChange={e => updateCS('clone_question_text', e.target.value)} rows={3} placeholder="Simpler version..." style={{ resize: 'vertical' }} />
+                            <MathPreview value={currentStep.clone_question_text} />
+                            <ImageUploader value={currentStep.clone_question_image_url} onChange={v => updateCS('clone_question_image_url', v)} label="Clone Question Image" />
                           </div>
                           {['a','b','c','d'].map(opt => (
                             <div className="form-group" key={opt} style={{ marginBottom: '8px' }}>
                               <label>Option {opt.toUpperCase()}</label>
-                              <input value={step[`clone_option_${opt}`]} onChange={e => updateStep(idx, `clone_option_${opt}`, e.target.value)} placeholder={`Option ${opt.toUpperCase()}`} />
-                              <MathPreview value={step[`clone_option_${opt}`]} />
-                              <ImageUploader value={step[`clone_option_${opt}_image_url`]} onChange={v => updateStep(idx, `clone_option_${opt}_image_url`, v)} label={`Option ${opt.toUpperCase()} Image`} />
+                              <input value={currentStep[`clone_option_${opt}`]} onChange={e => updateCS(`clone_option_${opt}`, e.target.value)} placeholder={`Option ${opt.toUpperCase()}`} />
+                              <MathPreview value={currentStep[`clone_option_${opt}`]} />
+                              <ImageUploader value={currentStep[`clone_option_${opt}_image_url`]} onChange={v => updateCS(`clone_option_${opt}_image_url`, v)} label={`Option ${opt.toUpperCase()} Image`} />
                             </div>
                           ))}
                           <div className="form-group"><label>Correct Answer</label>
-                            <select value={step.clone_correct_options} onChange={e => updateStep(idx, 'clone_correct_options', e.target.value)}>
+                            <select value={currentStep.clone_correct_options} onChange={e => updateCS('clone_correct_options', e.target.value)}>
                               {correctOptions.map(o => <option key={o} value={o}>Option {o.toUpperCase()}</option>)}
                             </select>
                           </div>
                           <div className="form-group" style={{ marginBottom: 0 }}><label>Explanation</label>
-                            <textarea value={step.clone_explanation} onChange={e => updateStep(idx, 'clone_explanation', e.target.value)} rows={2} placeholder="Explain the clone answer..." style={{ resize: 'vertical' }} />
+                            <textarea value={currentStep.clone_explanation} onChange={e => updateCS('clone_explanation', e.target.value)} rows={2} placeholder="Explain the clone answer..." style={{ resize: 'vertical' }} />
                           </div>
                         </div>
                       </div>
-
-                      {idx < 7 && (
-                        <div style={{ marginTop: '16px', textAlign: 'right' }}>
-                          <button type="button" className="btn-ghost" style={{ fontSize: '13px' }} onClick={() => setOpenStep(step.step_number + 1)}>
-                            Next Step →
-                          </button>
-                        </div>
-                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
 
-            {/* Submit */}
-            <div className="card" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-              {loading && (
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: '6px', overflow: 'hidden', marginBottom: '8px' }}>
-                    <div style={{ height: '100%', background: 'linear-gradient(90deg,#6c63ff,#22c55e)', borderRadius: '999px', width: `${progress.total ? (progress.current / progress.total) * 100 : 0}%`, transition: 'width 0.3s' }} />
-                  </div>
-                  <p style={{ fontSize: '13px', color: '#9090a8' }}>Saving step {progress.current} of {progress.total}...</p>
-                </div>
-              )}
+                    {/* Action buttons */}
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem' }}>
+                      <button type="button" className="btn-primary" disabled={savingQ} onClick={() => saveQuestion(false)} style={{ flex: 1, padding: '12px', fontSize: '14px' }}>
+                        {savingQ ? 'Saving...' : '+ Save & Add Another Question'}
+                      </button>
+                      <button type="button" className="btn-ghost" disabled={savingQ} onClick={() => saveQuestion(true)} style={{ flex: 1, padding: '12px', fontSize: '14px', color: '#22c55e', borderColor: 'rgba(34,197,94,0.4)' }}>
+                        {savingQ ? 'Saving...' : '✓ Save & Finish Set'}
+                      </button>
+                    </div>
+                  </>
+                )}
 
-              {savedSetId ? (
-                <div>
-                  <div style={{ fontSize: '15px', color: '#22c55e', fontWeight: 700, marginBottom: '6px' }}>
-                    ✓ Question set saved (ID #{savedSetId})
+                {/* Finished state */}
+                {qMsg.startsWith('✓ Done') && (
+                  <div className="card" style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '15px', color: '#22c55e', fontWeight: 700, marginBottom: '8px' }}>{qMsg}</div>
+                    <button type="button" className="btn-primary" onClick={startNewSet} style={{ padding: '11px 32px', fontSize: '14px' }}>
+                      + Add Another Question Set
+                    </button>
                   </div>
-                  <p style={{ fontSize: '13px', color: '#9090a8', marginBottom: '16px' }}>
-                    To edit these questions use the panel on the right. To add another set click below.
-                  </p>
-                  <button type="button" className="btn-primary" onClick={startNewSet} style={{ padding: '11px 32px', fontSize: '14px' }}>
-                    + Add Another Question Set
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <button type="submit" className="btn-primary" disabled={loading} style={{ padding: '12px 40px', fontSize: '15px' }}>
-                    {loading ? 'Saving...' : `Save Question Set (${filledCount} questions)`}
-                  </button>
-                  <p style={{ fontSize: '12px', color: '#9090a8', marginTop: '10px' }}>
-                    Only steps with a question filled will be saved
-                  </p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </form>
         </div>
 

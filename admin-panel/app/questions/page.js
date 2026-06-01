@@ -381,7 +381,7 @@ function QuestionsForm() {
             </div>
           )}
 
-          <form onSubmit={submit}>
+          <form onSubmit={e => e.preventDefault()} onKeyDown={e => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault(); }}>
             {/* Set info */}
             <div className="card" style={{ marginBottom: '1.5rem' }}>
               <h3 style={{ marginBottom: '1rem', fontSize: '15px' }}>Question Set Info</h3>
@@ -494,8 +494,8 @@ function QuestionsForm() {
             {/* Create Set button (before set exists) */}
             {!savedSetId && (
               <div className="card" style={{ textAlign: 'center' }}>
-                <button type="submit" className="btn-primary" disabled={loading} style={{ padding: '13px 40px', fontSize: '15px' }}>
-                  {loading ? 'Creating...' : 'Create Question Set & Start Adding Questions →'}
+                <button type="button" className="btn-primary" disabled={loading} onClick={submit} style={{ padding: '13px 40px', fontSize: '15px' }}>
+                  {loading ? 'Creating...' : 'Add Questions →'}
                 </button>
               </div>
             )}
@@ -629,12 +629,15 @@ function QuestionsForm() {
                     </div>
 
                     {/* Action buttons */}
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem' }}>
-                      <button type="button" className="btn-primary" disabled={savingQ} onClick={() => saveQuestion(false)} style={{ flex: 1, padding: '12px', fontSize: '14px' }}>
-                        {savingQ ? 'Saving...' : '+ Save & Add Another Question'}
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                      <button type="button" className="btn-primary" disabled={savingQ} onClick={() => saveQuestion(false)} style={{ flex: 1, minWidth: '160px', padding: '12px', fontSize: '14px' }}>
+                        {savingQ ? 'Saving...' : '+ Save & Add Another'}
                       </button>
-                      <button type="button" className="btn-ghost" disabled={savingQ} onClick={() => saveQuestion(true)} style={{ flex: 1, padding: '12px', fontSize: '14px', color: '#22c55e', borderColor: 'rgba(34,197,94,0.4)' }}>
+                      <button type="button" className="btn-ghost" disabled={savingQ} onClick={() => saveQuestion(true)} style={{ flex: 1, minWidth: '140px', padding: '12px', fontSize: '14px', color: '#22c55e', borderColor: 'rgba(34,197,94,0.4)' }}>
                         {savingQ ? 'Saving...' : '✓ Save & Finish Set'}
+                      </button>
+                      <button type="button" className="btn-ghost" disabled={savingQ} onClick={() => { setCurrentStep({ ...EMPTY_STEP, step_number: currentStep.step_number }); setQMsg(''); }} style={{ padding: '12px 16px', fontSize: '14px', color: '#ef4444', borderColor: 'rgba(239,68,68,0.35)' }}>
+                        🗑 Delete Question
                       </button>
                     </div>
                   </>
@@ -669,7 +672,7 @@ function QuestionsForm() {
             </div>
           )}
 
-          {selectedConceptId && questionSets.length === 0 && (
+          {selectedConceptId && questionSets.filter(qs => (qs.steps || []).length > 0).length === 0 && (
             <div className="card" style={{ color: '#9090a8', fontSize: '13px', textAlign: 'center' }}>
               No question sets yet for this concept
             </div>
@@ -795,7 +798,7 @@ function QuestionsForm() {
             </div>
           )}
 
-          {questionSets.map(qs => (
+          {questionSets.filter(qs => (qs.steps || []).length > 0).map(qs => (
             <div key={qs.id} className="card" style={{ marginBottom: '10px', padding: 0, overflow: 'hidden' }}>
               {/* Set header */}
               <div

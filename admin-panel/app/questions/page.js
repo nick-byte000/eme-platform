@@ -322,6 +322,13 @@ function QuestionsForm() {
 
   const setEdit = (field, value) => setEditingStep(prev => ({ ...prev, [field]: value }));
 
+  const deleteStep = async (stepId) => {
+    if (!window.confirm('Delete this question? This cannot be undone.')) return;
+    await apiCall(`/admin/ladder-steps/${stepId}`, 'DELETE');
+    setSavedSteps(prev => prev.filter(s => s.id !== stepId));
+    loadQuestionSets(selectedConceptId);
+  };
+
   const correctOptions = ['a', 'b', 'c', 'd'];
 
   // ── Video picker helper ───────────────────────────────────
@@ -512,6 +519,11 @@ function QuestionsForm() {
                             {s.concept_tag ? ` · ${s.concept_tag}` : ''}
                           </div>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => deleteStep(s.id)}
+                          style={{ background: 'none', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px', color: '#ef4444', fontSize: '11px', padding: '3px 9px', cursor: 'pointer', flexShrink: 0 }}
+                        >✕ Delete</button>
                       </div>
                     ))}
                   </div>
@@ -866,6 +878,11 @@ function QuestionsForm() {
                           >
                             {isEditing ? 'Cancel' : 'Edit'}
                           </button>
+                          <button
+                            className="btn-ghost"
+                            style={{ fontSize: '11px', padding: '4px 10px', flexShrink: 0, color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}
+                            onClick={() => deleteStep(step.id)}
+                          >✕</button>
                         </div>
 
                         {/* Inline edit form */}

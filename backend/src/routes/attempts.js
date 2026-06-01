@@ -3,6 +3,9 @@ const router = express.Router();
 const pool = require('../config/database');
 const auth = require('../middleware/auth');
 
+// phase: 'main' | 'clone' | 'clone_hint'
+// points: main correct first attempt = 10, clone correct = 5, clone_hint correct = 3
+
 router.post('/submit', auth, async (req, res) => {
   try {
     const studentId = req.student.id;
@@ -10,11 +13,10 @@ router.post('/submit', auth, async (req, res) => {
       boss_question_id, step_id,
       selected_options,
       time_taken_seconds,
-      phase = 'main',
+      phase = 'main',           // 'main' | 'clone' | 'clone_hint'
       hint_opened = false,
       theory_opened = false,
-      video_watched = false,
-      confidence = null,
+      video_watched = false
     } = req.body;
 
     const stepResult = await pool.query('SELECT * FROM ladder_steps WHERE id = $1', [step_id]);
@@ -23,59 +25,48 @@ router.post('/submit', auth, async (req, res) => {
 
     const step = stepResult.rows[0];
 
-    const correctOptions = phase === 'main' ? step.correct_options : step.clone_correct_options;
+    // Determine correct answer based on phase
+    const correctOptions = phase === 'main'
+      ? step.correct_options
+      : step.clone_correct_options;
+
     if (!correctOptions)
-      return res.status(400).json({ success: false, error: `No ${phase === 'main' ? 'main' : 'clone'} question found` });
+      return res.status(400).json({ success: false, error: `No ${phase === 'main' ? 'main' : 'clone'} question found for this step` });
 
     const isCorrect = String(selected_options).toLowerCase().trim() === String(correctOptions).toLowerCase().trim();
-    const isPersonalFoul = phase === 'main' && time_taken_seconds !== null && time_taken_seconds < 1;
 
+    // Points by phase
     let pointsEarned = 0;
-    if (isCorrect && !isPersonalFoul) {
+    if (isCorrect) {
       if (phase === 'main') pointsEarned = 10;
       else if (phase === 'clone') pointsEarned = 5;
       else if (phase === 'clone_hint') pointsEarned = 3;
     }
-    if (isCorrect && phase === 'main' && !isPersonalFoul && time_taken_seconds <= 30) pointsEarned += 3;
 
+    // Speed bonus: +3 if main question correct first attempt under 30s
+    if (isCorrect && phase === 'main' && time_taken_seconds <= 30) pointsEarned += 3;
+
+    // Record attempt
     await pool.query(
       `INSERT INTO student_attempts
         (student_id, boss_question_id, step_id, selected_options, correct_options,
          is_correct, time_taken_seconds, attempt_number, hint_opened, theory_opened,
-         video_watched, points_earned, confidence, is_personal_foul)
+         video_watched, points_earned)
        VALUES ($1,$2,$3,$4,$5,$6,$7,
          (SELECT COUNT(*)+1 FROM student_attempts WHERE student_id=$1 AND step_id=$3 AND clone_id IS NULL),
-         $8,$9,$10,$11,$12,$13)`,
+         $8,$9,$10,$11)`,
       [studentId, boss_question_id, step_id,
        selected_options, correctOptions, isCorrect,
-       time_taken_seconds, hint_opened, theory_opened, video_watched, pointsEarned,
-       confidence, isPersonalFoul]
+       time_taken_seconds, hint_opened, theory_opened, video_watched, pointsEarned]
     );
 
     if (pointsEarned > 0) {
       await pool.query('UPDATE students SET total_points = total_points + $1 WHERE id = $2', [pointsEarned, studentId]);
     }
 
-    // Update student_tier_progress on correct main answers
-    if (isCorrect && phase === 'main' && !isPersonalFoul && step.tier) {
-      const tierCol = step.tier.toLowerCase() + '_correct';
-      const gateCol = step.tier.toLowerCase() + '_gates_passed';
-      try {
-        await pool.query(
-          `INSERT INTO student_tier_progress (student_id, boss_question_id, ${tierCol}, ${step.is_mastery_gate ? gateCol : tierCol})
-           VALUES ($1, $2, 1, ${step.is_mastery_gate ? '1' : '1'})
-           ON CONFLICT (student_id, boss_question_id) DO UPDATE SET
-             ${tierCol} = student_tier_progress.${tierCol} + 1,
-             ${step.is_mastery_gate ? `${gateCol} = student_tier_progress.${gateCol} + 1,` : ''}
-             updated_at = NOW()`,
-          [studentId, boss_question_id]
-        );
-      } catch (e) { /* tier progress update is non-critical */ }
-    }
-
-    // Update student_progress
+    // Update progress only when main question is answered correctly
     let progress = null;
-    if (isCorrect && phase === 'main' && !isPersonalFoul) {
+    if (isCorrect && phase === 'main') {
       const bossResult = await pool.query('SELECT total_steps FROM boss_questions WHERE id = $1', [boss_question_id]);
       const totalSteps = bossResult.rows[0]?.total_steps || 8;
 
@@ -103,7 +94,8 @@ router.post('/submit', auth, async (req, res) => {
         await pool.query(
           `UPDATE student_progress
            SET current_step = $1, steps_completed = $2, progress_percentage = $3,
-               is_completed = $4, total_points_earned = total_points_earned + $5, completed_at = $6
+               is_completed = $4, total_points_earned = total_points_earned + $5,
+               completed_at = $6
            WHERE student_id = $7 AND boss_question_id = $8`,
           [step.step_number + 1, newCompleted,
            Math.round((newCompleted / totalSteps) * 100),
@@ -121,6 +113,7 @@ router.post('/submit', auth, async (req, res) => {
       progress = prog.rows[0];
     }
 
+    // Also advance progress when clone/hint gets it right
     if (isCorrect && (phase === 'clone' || phase === 'clone_hint')) {
       const prog = await pool.query(
         'SELECT * FROM student_progress WHERE student_id = $1 AND boss_question_id = $2',
@@ -166,28 +159,25 @@ router.post('/submit', auth, async (req, res) => {
     }
 
     const studentRow = await pool.query('SELECT total_points FROM students WHERE id = $1', [studentId]);
+
+    // Return explanation based on phase
     const explanation = phase === 'main' ? step.explanation : step.clone_explanation;
 
     res.json({
       success: true,
       is_correct: isCorrect,
-      is_personal_foul: isPersonalFoul,
       correct_options: correctOptions,
       explanation,
-      insight_correct: step.insight_correct || null,
-      insight_wrong: step.insight_wrong || null,
-      tier: step.tier,
-      is_mastery_gate: step.is_mastery_gate,
       theory_card: step.theory_card,
       theory_card_hinglish: step.theory_card_hinglish,
       hint_text: step.hint_text,
       video_url: step.video_url,
       points_earned: pointsEarned,
       student_total_points: studentRow.rows[0].total_points,
-      progress,
+      progress
     });
   } catch (err) {
-    console.error(err); res.status(500).json({ success: false, error: 'Something went wrong. Please try again.' });
+    console.error(err); res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
 });
 

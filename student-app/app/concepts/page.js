@@ -400,6 +400,7 @@ export default function ConceptsPage() {
   const [unlocking, setUnlocking] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [openChapters, setOpenChapters] = useState(new Set());
+  const [listening, setListening] = useState(false);
   const inputRef = useRef(null);
   const busy = useRef(false);
   const contentRef = useRef(null);
@@ -485,6 +486,25 @@ export default function ConceptsPage() {
   };
 
   const scrollToContent = () => contentRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+  const startVoiceSearch = () => {
+    const SR = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+    if (!SR) { alert('Voice search is not supported in this browser. Try Chrome or Edge.'); return; }
+    const recognition = new SR();
+    recognition.lang = 'en-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onstart = () => setListening(true);
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setQuery(transcript);
+      setFocused(true);
+      inputRef.current?.focus();
+    };
+    recognition.onerror = () => setListening(false);
+    recognition.onend = () => setListening(false);
+    recognition.start();
+  };
 
   const activeSubject = subjects[subjectIdx] || null;
   const cfg = (activeSubject && SUBJECT_CONFIG[activeSubject]) ? SUBJECT_CONFIG[activeSubject] : DEFAULT_CFG;
@@ -819,9 +839,11 @@ export default function ConceptsPage() {
                 {query ? (
                   <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', color: '#9090a8', cursor: 'pointer', fontSize: '20px', lineHeight: 1 }}>×</button>
                 ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={cfg.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/>
-                  </svg>
+                  <button onClick={startVoiceSearch} title="Voice search" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', borderRadius: '50%', transition: 'all 0.2s', outline: listening ? `2px solid ${cfg.primary}` : 'none' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={listening ? cfg.primary : cfg.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: listening ? 1 : 0.6, animation: listening ? 'pulse 0.8s ease-in-out infinite' : 'none' }}>
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/>
+                    </svg>
+                  </button>
                 )}
               </div>
 
